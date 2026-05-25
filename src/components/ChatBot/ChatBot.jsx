@@ -1,7 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
 import { io } from 'socket.io-client';
-import { MessageCircle, X, Send } from 'lucide-react';
-import LiveChat from './LiveChat';
+import { MessageCircle, X, Send, Image as ImageIcon, Smile } from 'lucide-react';
+import Picker from 'emoji-picker-react';
+import { Button } from '@/components/ui/Button';
+import { productService } from '@/services/product.service';
 import './ChatBot.css';
 
 const CHAT_SERVICE_URL = 'http://localhost:3011'; // AI Service
@@ -28,6 +30,7 @@ export default function ChatBot() {
     return sessionStorage.getItem('chatbot_session') || null;
   });
   const [socket, setSocket] = useState(null);
+  const [liveSocket, setLiveSocket] = useState(null);
   const [activeTab, setActiveTab] = useState('ai');
   const [conversations, setConversations] = useState([]);
   const [currentConversationId, setCurrentConversationId] = useState(null);
