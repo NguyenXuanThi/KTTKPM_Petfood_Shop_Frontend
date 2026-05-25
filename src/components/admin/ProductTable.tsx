@@ -1,4 +1,4 @@
-import { Eye, Pencil, Trash2 } from "lucide-react";
+﻿import { Eye, Pencil, Trash2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Product } from "@/types";
@@ -51,10 +51,10 @@ export function ProductTable({
         <div className="p-12 text-center">
           <p className="text-4xl">📦</p>
           <p className="mt-3 text-base font-semibold text-gray-900 dark:text-white">
-            No products in {categoryName}
+            Chưa có product trong {categoryName}
           </p>
           <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-            Add the first product to start managing this category.
+            Thêm product đầu tiên để bắt đầu quản lý danh mục này.
           </p>
         </div>
       ) : (
@@ -64,10 +64,10 @@ export function ProductTable({
               <tr className="border-b border-gray-100 bg-gray-50 dark:border-gray-800 dark:bg-gray-800/50">
                 {[
                   "Product",
-                  "Price",
-                  "Stock",
-                  "Status",
-                  "Actions",
+                  "Giá",
+                  "Tồn kho",
+                  "Trạng thái",
+                  "Thao tác",
                 ].map((heading) => (
                   <th
                     key={heading}
@@ -95,7 +95,7 @@ export function ProductTable({
                         className="h-11 w-11 rounded-xl object-cover"
                         onError={(e) => {
                           (e.target as HTMLImageElement).src =
-                            "https://placehold.co/64x64/fef3c7/92400e?text=🐾";
+                            "https://placehold.co/64x64/fef3c7/92400e?text=P";
                         }}
                       />
                       <div className="min-w-0">
@@ -124,7 +124,7 @@ export function ProductTable({
                   </td>
                   <td className="px-4 py-3">
                     <Badge variant={product.isActive ? "success" : "danger"}>
-                      {product.isActive ? "Active" : "Inactive"}
+                      {product.isActive ? "Đang hoạt động" : "Không hoạt động"}
                     </Badge>
                   </td>
                   <td className="px-4 py-3">
@@ -156,3 +156,4 @@ export function ProductTable({
     </div>
   );
 }
+

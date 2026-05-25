@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -8,10 +8,51 @@ import { useAddresses } from "@/hooks/useAddresses";
 import { orderService } from "@/services/order.service";
 import { couponService } from "@/services/coupon.service";
 import { formatPrice, getImageUrl } from "@/lib/utils";
+import { formatDate } from "@/lib/couponUtils";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
 import { Input } from "@/components/ui/Input";
 import { CART_KEY } from "@/hooks/useCartApi";
+
+type DirectBuyCheckoutItem = {
+  productId: string;
+  name: string;
+  price: number;
+  imageUrl: string;
+  quantity: number;
+};
+
+type DirectBuyCheckoutState = {
+  mode: "buy_now";
+  sourceProductId?: string;
+  items: DirectBuyCheckoutItem[];
+};
+
+const DIRECT_BUY_STORAGE_KEY = "directBuyCheckout";
+
+const getDirectBuyState = (state: unknown): DirectBuyCheckoutState | null => {
+  const maybeState = state as Partial<DirectBuyCheckoutState> | null;
+  if (
+    maybeState?.mode === "buy_now" &&
+    Array.isArray(maybeState.items) &&
+    maybeState.items.length > 0
+  ) {
+    return maybeState as DirectBuyCheckoutState;
+  }
+
+  try {
+    const raw = sessionStorage.getItem(DIRECT_BUY_STORAGE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as Partial<DirectBuyCheckoutState>;
+    if (parsed.mode === "buy_now" && Array.isArray(parsed.items) && parsed.items.length > 0) {
+      return parsed as DirectBuyCheckoutState;
+    }
+  } catch {
+    sessionStorage.removeItem(DIRECT_BUY_STORAGE_KEY);
+  }
+
+  return null;
+};
 
 export default function CheckoutPage() {
   const navigate = useNavigate();
@@ -19,6 +60,8 @@ export default function CheckoutPage() {
   const queryClient = useQueryClient();
   const { items, isLoading: cartLoading } = useCartApi();
   const { data: addresses = [], isLoading: addressLoading } = useAddresses();
+  const directBuyState = useMemo(() => getDirectBuyState(location.state), [location.state]);
+  const isDirectBuy = directBuyState?.mode === "buy_now";
 
   const [selectedAddressId, setSelectedAddressId] = useState<string>("");
   const [paymentMethod, setPaymentMethod] = useState<"cash" | "banking" | "vnpay">("cash");
@@ -32,12 +75,22 @@ export default function CheckoutPage() {
 
   const defaultAddress = useMemo(() => addresses.find((a) => a.isDefault) ?? addresses[0], [addresses]);
   const selectedCartItemIds = useMemo(() => {
+    if (isDirectBuy) return [];
     const ids = (location.state as { selectedCartItemIds?: string[] } | null)?.selectedCartItemIds;
     return ids?.length ? ids : items.map((item) => item.productId.toString());
-  }, [items, location.state]);
+  }, [items, location.state, isDirectBuy]);
   const selectedItems = useMemo(
-    () => items.filter((item) => selectedCartItemIds.includes(item.productId.toString())),
-    [items, selectedCartItemIds],
+    () =>
+      isDirectBuy
+        ? (directBuyState?.items ?? []).map((item) => ({
+            productId: item.productId,
+            productName: item.name,
+            priceAtAdd: item.price,
+            imageUrl: item.imageUrl,
+            quantity: item.quantity,
+          }))
+        : items.filter((item) => selectedCartItemIds.includes(item.productId.toString())),
+    [directBuyState?.items, isDirectBuy, items, selectedCartItemIds],
   );
   const selectedAddress = useMemo(
     () => addresses.find((a) => a.id === (selectedAddressId || defaultAddress?.id)) ?? defaultAddress,
@@ -99,11 +152,23 @@ export default function CheckoutPage() {
         throw new Error("Please select a shipping address");
       }
       if (selectedItems.length === 0) {
-        throw new Error("Please select at least one cart item");
+        throw new Error("Please select at least one item");
       }
 
       return orderService.createOrder({
-        selectedCartItemIds: selectedItems.map((item) => item.productId.toString()),
+        ...(isDirectBuy
+          ? {
+              directItems: selectedItems.map((item) => ({
+                productId: item.productId.toString(),
+                name: item.productName,
+                price: item.priceAtAdd,
+                imageUrl: item.imageUrl,
+                quantity: item.quantity,
+              })),
+            }
+          : {
+              selectedCartItemIds: selectedItems.map((item) => item.productId.toString()),
+            }),
         addressId: selectedAddress.id,
         paymentMethod,
         couponCode: appliedCouponCode || undefined,
@@ -111,7 +176,11 @@ export default function CheckoutPage() {
       });
     },
     onSuccess: (result) => {
-      queryClient.invalidateQueries({ queryKey: [CART_KEY] });
+      if (isDirectBuy) {
+        sessionStorage.removeItem(DIRECT_BUY_STORAGE_KEY);
+      } else {
+        queryClient.invalidateQueries({ queryKey: [CART_KEY] });
+      }
       if (result.nextAction === "UPLOAD_BANKING_PROOF") {
         toast.info("Please upload your bank transfer proof to complete payment confirmation.");
         navigate(`/payment/upload-proof/${result.order._id}`);
@@ -125,14 +194,29 @@ export default function CheckoutPage() {
     },
   });
 
-  if (!cartLoading && (items.length === 0 || selectedItems.length === 0)) {
-    navigate("/cart");
+  useEffect(() => {
+    if (isDirectBuy || cartLoading) return;
+    if (items.length === 0 || selectedItems.length === 0) {
+      navigate("/cart", { replace: true });
+    }
+  }, [cartLoading, isDirectBuy, items.length, navigate, selectedItems.length]);
+
+  useEffect(() => {
+    if (!isDirectBuy || selectedItems.length > 0) return;
+    navigate(directBuyState?.sourceProductId ? `/products/${directBuyState.sourceProductId}` : "/products", {
+      replace: true,
+    });
+  }, [directBuyState?.sourceProductId, isDirectBuy, navigate, selectedItems.length]);
+
+  if ((!isDirectBuy && !cartLoading && (items.length === 0 || selectedItems.length === 0)) || (isDirectBuy && selectedItems.length === 0)) {
     return null;
   }
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 md:px-6">
-      <h1 className="mb-6 text-2xl font-bold text-gray-900 dark:text-white">Checkout</h1>
+      <h1 className="mb-6 text-2xl font-bold text-gray-900 dark:text-white">
+        Checkout {isDirectBuy && <span className="text-base font-medium text-amber-600">(Mua ngay)</span>}
+      </h1>
 
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="space-y-4 lg:col-span-2">
@@ -163,7 +247,9 @@ export default function CheckoutPage() {
           </section>
 
           <section className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-gray-900">
-            <h2 className="mb-3 font-semibold text-gray-900 dark:text-white">Cart items</h2>
+            <h2 className="mb-3 font-semibold text-gray-900 dark:text-white">
+              {isDirectBuy ? "Buy now item" : "Cart items"}
+            </h2>
             <div className="space-y-3">
               {selectedItems.map((item) => (
                 <div key={item.productId} className="flex items-center gap-3">
@@ -364,7 +450,7 @@ export default function CheckoutPage() {
             </div>
           </div>
           <Button className="mt-4 w-full" loading={createOrderMutation.isPending} onClick={() => createOrderMutation.mutate()}>
-            Place order
+            {createOrderMutation.isPending ? "Đang xử lý..." : "Place order"}
           </Button>
         </aside>
       </div>
@@ -423,7 +509,7 @@ export default function CheckoutPage() {
                     <p className="text-xs text-gray-400">
                       {coupon.source === "assigned" ? "Assigned to you" : "Public campaign"}
                     </p>
-                    <p className="text-xs text-gray-400">Expires {new Date(coupon.expiresAt).toLocaleDateString("vi-VN")}</p>
+                    <p className="text-xs text-gray-400">Hạn dùng {formatDate(coupon.expiresAt)}</p>
                   </div>
                   <Button size="sm" onClick={() => applyCoupon(coupon.code)}>
                     Apply

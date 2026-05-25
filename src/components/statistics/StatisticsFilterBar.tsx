@@ -1,10 +1,10 @@
-import { StatisticsFilter } from "@/api/statisticsApi";
+﻿import { StatisticsFilter } from "@/api/statisticsApi";
 
 const quickFilters = [
-  { label: "Today", value: "today" },
-  { label: "Last 7 Days", value: "7days" },
-  { label: "This Month", value: "month" },
-  { label: "Custom Range", value: "custom" },
+  { label: "Hôm nay", value: "today" },
+  { label: "7 ngày gần đây", value: "7days" },
+  { label: "Tháng này", value: "month" },
+  { label: "Tùy chọn thời gian", value: "custom" },
 ] as const;
 
 export function StatisticsFilterBar({
@@ -52,10 +52,13 @@ export function StatisticsFilterBar({
             onClick={() => onChange({ range: "custom", startDate: filter.startDate, endDate: filter.endDate })}
             className="rounded-xl bg-gray-900 px-4 py-2 text-sm font-semibold text-white dark:bg-white dark:text-gray-950"
           >
-            Apply
+            Áp dụng
           </button>
         </div>
       )}
     </div>
   );
 }
+
+
+

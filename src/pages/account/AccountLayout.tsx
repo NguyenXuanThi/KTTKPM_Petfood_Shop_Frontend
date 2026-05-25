@@ -1,4 +1,4 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import { Link, NavLink, Outlet, useNavigate } from "react-router-dom";
 import {
   Home,
@@ -14,19 +14,26 @@ import {
   ChevronLeft,
   MapPin,
   Truck,
+  Gift,
+  RotateCcw,
+  ShoppingBag,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
 import { cn } from "@/lib/utils";
 
 const NAV_ITEMS = [
-  { to: "/my-account/profile", label: "Profile", icon: UserCircle2, end: true },
-  { to: "/my-account/addresses", label: "Addresses", icon: MapPin, end: false },
+  { to: "/my-account/profile", label: "Hồ sơ", icon: UserCircle2, end: true },
+  { to: "/my-account/addresses", label: "Địa chỉ", icon: MapPin, end: false },
   { to: "/my-account/wishlist", label: "Wishlist", icon: Heart, end: false },
-  { to: "/my-account/orders", label: "Orders", icon: Package, end: false },
-  { to: "/my-account/orders/shipping", label: "Shipping Orders", icon: Truck, end: false },
+  { to: "/my-account/orders", label: "Order của tôi", icon: Package, end: false },
+  { to: "/my-account/orders/shipping", label: "Order đang giao", icon: Truck, end: false },
   { to: "/my-account/coupons", label: "Coupons", icon: Ticket, end: false },
-  { to: "/my-account/security", label: "Security", icon: ShieldCheck, end: false },
+  { to: "/rewards", label: "Phần thưởng của tôi", icon: Gift, end: false },
+  { to: "/rewards/wheel", label: "Lucky Wheel", icon: RotateCcw, end: false },
+  { to: "/rewards/shop", label: "Cửa hàng đổi thưởng", icon: ShoppingBag, end: false },
+  { to: "/rewards/history", label: "Lịch sử quay", icon: Gift, end: false },
+  { to: "/my-account/security", label: "Bảo mật", icon: ShieldCheck, end: false },
 ];
 
 function getInitials(name: string) {
@@ -208,3 +215,5 @@ export default function AccountLayout() {
     </div>
   );
 }
+
+

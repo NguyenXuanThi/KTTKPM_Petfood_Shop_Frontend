@@ -8,7 +8,6 @@ import { useAppDispatch, useAppSelector } from "./useAppDispatch";
 import { InactiveLoginResponse, LoginPayload, RegisterPayload } from "@/types";
 import {
   cartService,
-  getGuestToken,
   clearGuestToken,
 } from "@/services/cart.service";
 import { CART_KEY } from "./useCartApi";
@@ -20,6 +19,7 @@ export function useAuth() {
   const queryClient = useQueryClient();
   const [inactiveAccount, setInactiveAccount] =
     useState<InactiveLoginResponse | null>(null);
+  const [loginError, setLoginError] = useState("");
   const { user, isAuthenticated, accessToken } = useAppSelector((s) => s.auth);
 
   const mergeGuestCartAfterLogin = async () => {
@@ -39,6 +39,7 @@ export function useAuth() {
     mutationFn: (payload: LoginPayload) => authService.login(payload),
     onSuccess: async (data) => {
       setInactiveAccount(null);
+      setLoginError("");
       dispatch(
         setCredentials({ user: data.user, accessToken: data.accessToken }),
       );
@@ -71,11 +72,20 @@ export function useAuth() {
           canRequestReactivation: true,
           userId: data.userId,
         });
+        setLoginError("Tài khoản của bạn đang bị vô hiệu hóa");
         return;
       }
 
       setInactiveAccount(null);
-      toast.error(data?.message ?? "Login failed");
+      const status = error?.response?.status;
+      const backendMessage = data?.message || "";
+      const message =
+        status === 400 || status === 401 || backendMessage === "Invalid email or password"
+          ? "Sai email hoặc mật khẩu"
+          : backendMessage.toLowerCase().includes("refresh token")
+            ? "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại."
+            : backendMessage || "Sai email hoặc mật khẩu";
+      setLoginError(message);
     },
   });
 
@@ -113,6 +123,8 @@ export function useAuth() {
     isAdmin: user?.role === "admin",
     isSupport: user?.role === "support",
     login: loginMutation.mutate,
+    loginError,
+    clearLoginError: () => setLoginError(""),
     inactiveAccount,
     clearInactiveAccount: () => setInactiveAccount(null),
     register: registerMutation.mutate,

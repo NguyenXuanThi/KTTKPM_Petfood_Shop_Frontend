@@ -15,6 +15,8 @@ import {
   MessageSquareText,
   ShoppingCart,
   Tag,
+  Trophy,
+  Gift,
   Users,
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
@@ -40,7 +42,7 @@ const NAV_ITEMS: NavItem[] = [
     icon: <LayoutDashboard size={18} />,
     label: "Dashboard",
   },
-  { type: "group", label: "Management" },
+  { type: "group", label: "Quản lý" },
   {
     to: "/admin/users",
     end: false,
@@ -69,13 +71,13 @@ const NAV_ITEMS: NavItem[] = [
     to: "/admin/orders/pending",
     end: false,
     icon: <Clock3 size={18} />,
-    label: "Pending Orders",
+    label: "Order chờ xử lý",
   },
   {
     to: "/admin/payments/banking",
     end: false,
     icon: <Banknote size={18} />,
-    label: "Banking Payments",
+    label: "Payment banking",
   },
   {
     to: "/admin/reviews",
@@ -83,7 +85,20 @@ const NAV_ITEMS: NavItem[] = [
     icon: <MessageSquareText size={18} />,
     label: "Quản lý đánh giá",
   },
-  { type: "group", label: "Analytics" },
+  { type: "group", label: "Tích điểm & vòng quay" },
+  {
+    to: "/admin/rewards/pool",
+    end: false,
+    icon: <Trophy size={18} />,
+    label: "Quản lý vòng quay",
+  },
+  {
+    to: "/admin/rewards/shop",
+    end: false,
+    icon: <Gift size={18} />,
+    label: "Quản lý đổi xu",
+  },
+  { type: "group", label: "Thống kê" },
   {
     to: "/admin/statistics/revenue",
     end: false,
@@ -274,7 +289,7 @@ function AdminSidebar({ onNavigate }: { onNavigate?: () => void }) {
           onClick={() => logout()}
           className="flex min-h-12 w-full items-center gap-2 rounded-2xl px-4 py-3 text-sm font-semibold text-red-500 transition hover:bg-red-50 hover:text-red-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400 dark:hover:bg-red-500/10"
         >
-          <LogOut size={16} /> Logout
+          <LogOut size={16} /> Đăng xuất
         </button>
       </footer>
     </aside>
@@ -323,3 +338,7 @@ export function AdminLayout() {
     </div>
   );
 }
+
+
+
+

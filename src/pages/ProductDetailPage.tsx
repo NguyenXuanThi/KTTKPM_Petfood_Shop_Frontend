@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useNavigate, useParams, Link } from "react-router-dom";
 import {
   ShoppingCart,
   Heart,
@@ -8,6 +8,7 @@ import {
   Plus,
   Share2,
   Tag,
+  Zap,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { useProduct } from "@/hooks/useProducts";
@@ -22,6 +23,7 @@ import { ReviewSection } from "@/components/review/ReviewSection";
 
 export default function ProductDetailPage() {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
   const { data: product, isLoading, error } = useProduct(id ?? "");
   const { addItem, getItemQuantity, updateQty, isInCart } = useCart();
   const { toggle, isWishlisted } = useWishlist();
@@ -60,6 +62,25 @@ export default function ProductDetailPage() {
 
   const handleAddToCart = () => {
     addItem(product, qty);
+  };
+
+  const handleBuyNow = () => {
+    const checkoutState = {
+      mode: "buy_now" as const,
+      sourceProductId: product._id,
+      items: [
+        {
+          productId: product._id,
+          name: product.name,
+          price: product.price,
+          imageUrl: product.imageUrl,
+          quantity: qty,
+        },
+      ],
+    };
+
+    sessionStorage.setItem("directBuyCheckout", JSON.stringify(checkoutState));
+    navigate("/checkout", { state: checkoutState });
   };
 
   const handleShare = async () => {
@@ -190,15 +211,25 @@ export default function ProductDetailPage() {
           )}
 
           {/* Actions */}
-          <div className="flex gap-3">
+          <div className="grid gap-3 sm:grid-cols-[1fr_1fr_auto]">
             <Button
               size="lg"
               onClick={handleAddToCart}
               disabled={product.stock === 0}
-              className="flex-1"
+              className="w-full"
             >
               <ShoppingCart size={18} />
               {product.stock === 0 ? "Out of Stock" : "Add to Cart"}
+            </Button>
+            <Button
+              size="lg"
+              variant="secondary"
+              onClick={handleBuyNow}
+              disabled={product.stock === 0}
+              className="w-full"
+            >
+              <Zap size={18} />
+              Mua ngay
             </Button>
             <Button variant="outline" size="icon" onClick={handleShare}>
               <Share2 size={18} />

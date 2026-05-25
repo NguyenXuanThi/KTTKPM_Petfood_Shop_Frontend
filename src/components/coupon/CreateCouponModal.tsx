@@ -1,4 +1,4 @@
-import { FormEvent, useState } from "react";
+﻿import { FormEvent, useEffect, useState } from "react";
 import { Modal } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -18,7 +18,7 @@ const EMPTY: CreateCouponPayload = {
   discountValue: 0,
   minOrderAmount: 0,
   scope: "global",
-  expiresAt: "",
+  expiresAt: null,
   usageLimit: null,
   perUserLimit: 1,
   appliesTo: "order",
@@ -32,39 +32,54 @@ export function CreateCouponModal({
   onSubmit,
 }: CreateCouponModalProps) {
   const [form, setForm] = useState<CreateCouponPayload>(EMPTY);
+  const [noExpiration, setNoExpiration] = useState(false);
 
   const set = <K extends keyof CreateCouponPayload>(
     key: K,
-    value: CreateCouponPayload[K]
-  ) => setForm((prev) => ({ ...prev, [key]: value }));
+    value: CreateCouponPayload[K],
+  ) => {
+    setForm((prev) => ({ ...prev, [key]: value }));
+  };
 
   const handleClose = () => {
     setForm(EMPTY);
+    setNoExpiration(false);
     onClose();
   };
+
+  useEffect(() => {
+    if (!isOpen) return;
+    if (form.scope === "reward") {
+      setNoExpiration(true);
+      set("expiresAt", null);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [form.scope, isOpen]);
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     onSubmit({
       ...form,
       code: form.code.toUpperCase().trim(),
-      // Convert local datetime to ISO
-      expiresAt: new Date(form.expiresAt).toISOString(),
+      expiresAt: noExpiration
+        ? null
+        : new Date(form.expiresAt as string).toISOString(),
     });
   };
 
-  const labelClass = "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5";
+  const labelClass =
+    "block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5";
   const selectClass =
     "w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm text-gray-900 transition focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-100 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100";
 
   return (
-    <Modal isOpen={isOpen} onClose={handleClose} title="Create Coupon" size="lg">
+    <Modal isOpen={isOpen} onClose={handleClose} title="T?o coupon" size="lg">
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className={labelClass}>Code *</label>
+            <label className={labelClass}>Mã coupon *</label>
             <Input
-              placeholder="e.g. SALE20"
+              placeholder="VD: SALE20"
               value={form.code}
               onChange={(e) => set("code", e.target.value.toUpperCase())}
               required
@@ -80,24 +95,27 @@ export function CreateCouponModal({
               <option value="global">Global</option>
               <option value="user">User-specific</option>
               <option value="birthday">Birthday</option>
+              <option value="reward">Reward</option>
             </select>
           </div>
         </div>
 
         <div className="grid grid-cols-3 gap-4">
           <div>
-            <label className={labelClass}>Applies To</label>
+            <label className={labelClass}>Áp dụng cho</label>
             <select
               className={selectClass}
               value={form.appliesTo}
-              onChange={(e) => set("appliesTo", e.target.value as "order" | "shipping")}
+              onChange={(e) =>
+                set("appliesTo", e.target.value as "order" | "shipping")
+              }
             >
               <option value="order">Order</option>
               <option value="shipping">Shipping</option>
             </select>
           </div>
           <div>
-            <label className={labelClass}>Per-user Limit</label>
+            <label className={labelClass}>Giới hạn mỗi user</label>
             <Input
               type="number"
               min={1}
@@ -106,23 +124,26 @@ export function CreateCouponModal({
             />
           </div>
           <div>
-            <label className={labelClass}>Max Discount</label>
+            <label className={labelClass}>Giảm tối đa</label>
             <Input
               type="number"
               min={0}
-              placeholder="No cap"
+              placeholder="Không giới hạn"
               value={form.maxDiscountAmount ?? ""}
               onChange={(e) =>
-                set("maxDiscountAmount", e.target.value ? Number(e.target.value) : null)
+                set(
+                  "maxDiscountAmount",
+                  e.target.value ? Number(e.target.value) : null,
+                )
               }
             />
           </div>
         </div>
 
         <div>
-          <label className={labelClass}>Description</label>
+          <label className={labelClass}>Mô tả</label>
           <Input
-            placeholder="Short description (optional)"
+            placeholder="Mô tả ngắn (không bắt buộc)"
             value={form.description}
             onChange={(e) => set("description", e.target.value)}
           />
@@ -136,13 +157,13 @@ export function CreateCouponModal({
               value={form.type}
               onChange={(e) => set("type", e.target.value as CouponType)}
             >
-              <option value="percentage">Percentage (%)</option>
-              <option value="fixed">Fixed amount (đ)</option>
+              <option value="percentage">Phần trăm (%)</option>
+              <option value="fixed">Số tiền cố định (d)</option>
             </select>
           </div>
           <div>
             <label className={labelClass}>
-              {form.type === "percentage" ? "Discount (%)" : "Discount (đ)"} *
+              {form.type === "percentage" ? "Mức giảm (%)" : "Mức giảm (d)"} *
             </label>
             <Input
               type="number"
@@ -158,7 +179,7 @@ export function CreateCouponModal({
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className={labelClass}>Min Order Amount (đ)</label>
+            <label className={labelClass}>Giá trị order tối thiểu (d)</label>
             <Input
               type="number"
               min={0}
@@ -168,35 +189,61 @@ export function CreateCouponModal({
             />
           </div>
           <div>
-            <label className={labelClass}>Usage Limit (blank = unlimited)</label>
+            <label className={labelClass}>
+              Giới hạn lượt dùng (trống = không giới hạn)
+            </label>
             <Input
               type="number"
               min={1}
-              placeholder="Unlimited"
+              placeholder="Không giới hạn"
               value={form.usageLimit ?? ""}
               onChange={(e) =>
-                set("usageLimit", e.target.value ? Number(e.target.value) : null)
+                set(
+                  "usageLimit",
+                  e.target.value ? Number(e.target.value) : null,
+                )
               }
             />
           </div>
         </div>
 
-        <div>
-          <label className={labelClass}>Expiration Date *</label>
-          <Input
-            type="datetime-local"
-            value={form.expiresAt}
-            onChange={(e) => set("expiresAt", e.target.value)}
-            required
-          />
+        <div className="space-y-3">
+          <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-200">
+            <input
+              type="checkbox"
+              checked={noExpiration}
+              onChange={(e) => {
+                setNoExpiration(e.target.checked);
+                if (e.target.checked) set("expiresAt", null);
+              }}
+              className="h-4 w-4 accent-amber-500"
+            />
+            Không có ngày hết hạn
+          </label>
+          <div>
+            <label className={labelClass}>
+              Ngày hết hạn {!noExpiration && "*"}
+            </label>
+            <Input
+              type="datetime-local"
+              value={form.expiresAt ?? ""}
+              onChange={(e) => set("expiresAt", e.target.value)}
+              disabled={noExpiration}
+              required={!noExpiration}
+            />
+          </div>
         </div>
 
         <div className="flex justify-end gap-3 pt-2">
           <Button type="button" variant="ghost" onClick={handleClose}>
-            Cancel
+            Hủy
           </Button>
-          <Button type="submit" loading={isLoading} disabled={!form.code || !form.expiresAt}>
-            Create Coupon
+          <Button
+            type="submit"
+            loading={isLoading}
+            disabled={!form.code || (!noExpiration && !form.expiresAt)}
+          >
+            Tạo coupon
           </Button>
         </div>
       </form>

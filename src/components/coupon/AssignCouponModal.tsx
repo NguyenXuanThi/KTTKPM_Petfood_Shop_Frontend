@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+﻿import { useEffect, useRef, useState } from "react";
 import { Check, Info, Loader2, Search, X } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { Modal } from "@/components/ui/Modal";
@@ -104,7 +104,7 @@ export function AssignCouponModal({
     !selected;
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Assign Coupon to User">
+    <Modal isOpen={isOpen} onClose={onClose} title="Gán coupon cho user">
       <form onSubmit={handleSubmit} className="space-y-5">
         {/* Coupon info strip */}
         {coupon && (
@@ -119,10 +119,10 @@ export function AssignCouponModal({
               </p>
               <p className="text-amber-700 dark:text-amber-400">
                 {coupon.type === "percentage"
-                  ? `${coupon.discountValue}% off`
-                  : `${coupon.discountValue.toLocaleString("vi-VN")}đ off`}
+                  ? `${coupon.discountValue}% giảm`
+                  : `${coupon.discountValue.toLocaleString("vi-VN")}đ giảm`}
                 {coupon.minOrderAmount > 0 &&
-                  ` · min ${coupon.minOrderAmount.toLocaleString("vi-VN")}đ`}
+                  ` · tối thiểu ${coupon.minOrderAmount.toLocaleString("vi-VN")}đ`}
               </p>
             </div>
           </div>
@@ -131,7 +131,7 @@ export function AssignCouponModal({
         {/* User search */}
         <div className="space-y-1.5">
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-            Search user
+            Tìm user
           </label>
 
           <div className="relative" ref={dropdownRef}>
@@ -168,7 +168,7 @@ export function AssignCouponModal({
                 onFocus={() => {
                   if (results.length > 0 && !selected) setDropdownOpen(true);
                 }}
-                placeholder="Search by name or email…"
+                placeholder="Tìm theo tên hoặc email..."
                 className="flex-1 bg-transparent text-sm text-gray-900 placeholder-gray-400 outline-none dark:text-gray-100"
               />
 
@@ -247,7 +247,7 @@ export function AssignCouponModal({
             {/* Empty state */}
             {showEmpty && (
               <div className="absolute z-20 mt-1 w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-center text-sm text-gray-500 shadow-lg dark:border-gray-700 dark:bg-gray-900 dark:text-gray-400">
-                No users found for "{debouncedQuery}"
+                Không tìm thấy user cho "{debouncedQuery}"
               </div>
             )}
           </div>
@@ -255,13 +255,16 @@ export function AssignCouponModal({
 
         <div className="flex justify-end gap-3 pt-1">
           <Button type="button" variant="ghost" onClick={onClose}>
-            Cancel
+            Hủy
           </Button>
           <Button type="submit" loading={isLoading} disabled={!selected}>
-            Assign Coupon
+            Gán coupon
           </Button>
         </div>
       </form>
     </Modal>
   );
 }
+
+
+

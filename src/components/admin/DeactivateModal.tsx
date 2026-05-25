@@ -1,4 +1,4 @@
-import { FormEvent, useEffect, useState } from "react";
+﻿import { FormEvent, useEffect, useState } from "react";
 import { AlertTriangle } from "lucide-react";
 import { Modal } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/Button";
@@ -33,15 +33,15 @@ export function DeactivateModal({
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Deactivate account">
+    <Modal isOpen={isOpen} onClose={onClose} title="Vô hiệu hóa tài khoản">
       <form onSubmit={handleSubmit} className="space-y-5">
         <div className="rounded-2xl border border-red-100 bg-red-50 p-4 text-sm text-red-700 dark:border-red-900/40 dark:bg-red-950/30 dark:text-red-300">
           <div className="mb-2 flex items-center gap-2 font-semibold">
             <AlertTriangle size={16} />
-            This user will no longer be able to login.
+            User này sẽ không thể đăng nhập nữa.
           </div>
           <p>
-            You are deactivating{" "}
+            Bạn đang vô hiệu hóa{" "}
             <span className="font-semibold">{user?.fullName}</span>. The reason
             will be shown to the user on the blocked login screen.
           </p>
@@ -49,25 +49,25 @@ export function DeactivateModal({
 
         <label className="block">
           <span className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-200">
-            Inactive reason
+            Lý do vô hiệu hóa
           </span>
           <textarea
             value={reason}
             onChange={(event) => setReason(event.target.value)}
             rows={4}
-            placeholder="Example: Violation policy"
+            placeholder="Ví dụ: Vi phạm chính sách"
             className="w-full rounded-2xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-900 outline-none transition focus:border-amber-400 focus:ring-4 focus:ring-amber-100 dark:border-gray-700 dark:bg-gray-950 dark:text-white dark:focus:ring-amber-900/30"
           />
           {!isReasonValid && reason.length > 0 && (
             <p className="mt-2 text-xs text-red-500">
-              Reason must be at least 3 characters.
+              Lý do phải có ít nhất 3 ký tự.
             </p>
           )}
         </label>
 
         <div className="flex justify-end gap-3">
           <Button type="button" variant="ghost" onClick={onClose}>
-            Cancel
+            Hủy
           </Button>
           <Button
             type="submit"
@@ -75,10 +75,14 @@ export function DeactivateModal({
             loading={isLoading}
             disabled={!isReasonValid}
           >
-            Deactivate
+            Vô hiệu hóa
           </Button>
         </div>
       </form>
     </Modal>
   );
 }
+
+
+
+

@@ -1,9 +1,9 @@
-import { Ban, UserPlus } from "lucide-react";
+﻿import { Ban, UserPlus } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { CouponAdminBadge } from "./CouponStatusBadge";
 import { Coupon } from "@/types/coupon";
-import { formatDate, formatDiscount } from "@/lib/couponUtils";
+import { formatDate, formatDiscount, isCouponExpired } from "@/lib/couponUtils";
 
 interface CouponTableProps {
   coupons: Coupon[];
@@ -37,19 +37,20 @@ export function CouponTable({
       <table className="w-full text-sm">
         <thead>
           <tr className="border-b border-gray-100 bg-gray-50 text-left text-xs font-semibold uppercase tracking-wide text-gray-500 dark:border-gray-800 dark:bg-gray-800/50 dark:text-gray-400">
-            <th className="px-5 py-3.5">Code</th>
-            <th className="px-5 py-3.5">Type</th>
-            <th className="px-5 py-3.5">Value</th>
-            <th className="px-5 py-3.5">Min Order</th>
-            <th className="px-5 py-3.5">Expiration</th>
-            <th className="px-5 py-3.5">Usage</th>
-            <th className="px-5 py-3.5">Status</th>
-            <th className="px-5 py-3.5 text-right">Actions</th>
+            <th className="px-5 py-3.5">Mã coupon</th>
+            <th className="px-5 py-3.5">Loại</th>
+            <th className="px-5 py-3.5">Scope</th>
+            <th className="px-5 py-3.5">Giá trị</th>
+            <th className="px-5 py-3.5">Order tối thiểu</th>
+            <th className="px-5 py-3.5">Hạn dùng</th>
+            <th className="px-5 py-3.5">Lượt dùng</th>
+            <th className="px-5 py-3.5">Trạng thái</th>
+            <th className="px-5 py-3.5 text-right">Thao tác</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-gray-50 dark:divide-gray-800">
           {coupons.map((coupon) => {
-            const isExpired = new Date(coupon.expiresAt) <= new Date();
+            const isExpired = isCouponExpired(coupon.expiresAt);
             const canDisable = coupon.isActive && !isExpired;
 
             return (
@@ -64,6 +65,9 @@ export function CouponTable({
                 </td>
                 <td className="px-5 py-4 capitalize text-gray-600 dark:text-gray-400">
                   {coupon.type}
+                </td>
+                <td className="px-5 py-4 text-gray-600 dark:text-gray-400">
+                  {coupon.scope}
                 </td>
                 <td className="px-5 py-4 font-semibold text-amber-600 dark:text-amber-400">
                   {formatDiscount(coupon)}
@@ -90,10 +94,10 @@ export function CouponTable({
                       size="sm"
                       variant="outline"
                       onClick={() => onAssign(coupon)}
-                      title="Assign to user"
+                      title="Gán cho user"
                     >
                       <UserPlus size={13} />
-                      Assign
+                      Gán
                     </Button>
                     {canDisable && (
                       <Button
@@ -101,10 +105,10 @@ export function CouponTable({
                         variant="danger"
                         loading={disablingId === coupon._id}
                         onClick={() => onDisable(coupon)}
-                        title="Disable coupon"
+                        title="Vô hiệu hóa coupon"
                       >
                         <Ban size={13} />
-                        Disable
+                        Vô hiệu hóa
                       </Button>
                     )}
                   </div>
@@ -117,3 +121,7 @@ export function CouponTable({
     </div>
   );
 }
+
+
+
+

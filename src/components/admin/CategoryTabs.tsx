@@ -1,4 +1,4 @@
-import { Category } from "@/types";
+﻿import { Category } from "@/types";
 import { cn } from "@/lib/utils";
 
 type CategoryTabItem = Category & { depth: number };
@@ -24,7 +24,7 @@ export function CategoryTabs({
       <div className="mb-3 flex items-center justify-between gap-3">
         <div>
           <h2 className="text-sm font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
-            Product type tabs
+            Tab loại product
           </h2>
           <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
             Chọn tab để chỉ xem product của loại đó.
@@ -60,3 +60,5 @@ export function CategoryTabs({
     </div>
   );
 }
+
+

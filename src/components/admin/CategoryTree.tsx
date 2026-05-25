@@ -1,4 +1,4 @@
-import { FolderTree, Plus, RefreshCw, Search } from "lucide-react";
+﻿import { FolderTree, Plus, RefreshCw, Search } from "lucide-react";
 import { CategoryNode as CategoryTreeItem } from "@/types";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -67,10 +67,10 @@ export function CategoryTree({
           <div>
             <div className="flex items-center gap-2 text-gray-900 dark:text-white">
               <FolderTree size={18} className="text-amber-500" />
-              <h2 className="text-lg font-semibold">Category tree</h2>
+              <h2 className="text-lg font-semibold">Cây danh mục</h2>
             </div>
             <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-              {totalCount} categories available for product management.
+              {totalCount} danh mục đang sẵn sàng để quản lý product.
             </p>
           </div>
           <div className="flex gap-2">
@@ -84,18 +84,18 @@ export function CategoryTree({
                 size={14}
                 className={isRefreshing ? "animate-spin" : ""}
               />
-              Refresh
+              Làm mới
             </Button>
             <Button size="sm" onClick={onCreateRoot}>
               <Plus size={14} />
-              Add
+              Thêm
             </Button>
           </div>
         </div>
 
         <div className="mt-4">
           <Input
-            placeholder="Search categories..."
+            placeholder="Tìm danh mục..."
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
             leftIcon={<Search size={14} />}
@@ -118,10 +118,10 @@ export function CategoryTree({
           <div className="rounded-2xl border border-dashed border-gray-200 px-4 py-10 text-center dark:border-gray-700">
             <p className="text-3xl">🗂️</p>
             <p className="mt-3 text-sm font-medium text-gray-700 dark:text-gray-200">
-              {search ? "No categories match your search" : "No categories yet"}
+              {search ? "Không có danh mục khớp với tìm kiếm" : "Chưa có danh mục nào"}
             </p>
             <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-              Create a category to start organizing products.
+              Tạo danh mục để bắt đầu sắp xếp product.
             </p>
           </div>
         ) : (
@@ -144,3 +144,5 @@ export function CategoryTree({
     </section>
   );
 }
+
+

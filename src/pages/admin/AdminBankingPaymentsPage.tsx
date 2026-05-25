@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+﻿import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { CheckCircle2, Search, XCircle, ZoomIn } from "lucide-react";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
@@ -9,8 +9,8 @@ import { Modal } from "@/components/ui/Modal";
 import { formatPrice } from "@/lib/utils";
 
 const paymentStateLabel = (status: string, hasProof: boolean) => {
-  if (status === "pending" && !hasProof) return "Waiting for user proof";
-  if (status === "waiting_verify" && hasProof) return "Waiting admin verification";
+  if (status === "pending" && !hasProof) return "Đang chờ user tải ảnh chuyển khoản";
+  if (status === "waiting_verify" && hasProof) return "Đang chờ admin xác minh";
   return status.replace(/_/g, " ");
 };
 
@@ -32,22 +32,22 @@ export default function AdminBankingPaymentsPage() {
   const approveMutation = useMutation({
     mutationFn: (id: string) => paymentService.approvePayment(id),
     onSuccess: () => {
-      toast.success("Payment approved");
+      toast.success("Duyệt payment thành công");
       refresh();
     },
-    onError: (e: any) => toast.error(e?.response?.data?.message ?? "Approve failed"),
+    onError: (e: any) => toast.error(e?.response?.data?.message ?? "Không thể duyệt payment"),
   });
 
   const rejectMutation = useMutation({
     mutationFn: ({ id, rejectedReason }: { id: string; rejectedReason: string }) =>
       paymentService.rejectPayment(id, rejectedReason),
     onSuccess: () => {
-      toast.success("Payment rejected");
+      toast.success("Đã từ chối payment");
       setRejectDialogOpen(false);
       setReason("");
       refresh();
     },
-    onError: (e: any) => toast.error(e?.response?.data?.message ?? "Reject failed"),
+    onError: (e: any) => toast.error(e?.response?.data?.message ?? "Không thể từ chối payment"),
   });
 
   const rows = data?.payments ?? [];
@@ -60,15 +60,15 @@ export default function AdminBankingPaymentsPage() {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Banking Payments Verification</h1>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Xác minh payment banking</h1>
         <div className="w-80">
-          <Input value={keyword} onChange={(e) => setKeyword(e.target.value)} placeholder="Search payment/order" leftIcon={<Search size={14} />} />
+          <Input value={keyword} onChange={(e) => setKeyword(e.target.value)} placeholder="Tìm payment/order" leftIcon={<Search size={14} />} />
         </div>
       </div>
 
       <div className="space-y-3">
-        {isLoading && <p className="text-sm text-gray-500">Loading payments...</p>}
-        {!isLoading && filtered.length === 0 && <p className="text-sm text-gray-500">No pending payments</p>}
+        {isLoading && <p className="text-sm text-gray-500">Đang tải payment...</p>}
+        {!isLoading && filtered.length === 0 && <p className="text-sm text-gray-500">Không có payment chờ xử lý</p>}
 
         {filtered.map((payment) => (
           <div key={payment._id} className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm dark:border-gray-800 dark:bg-gray-900">
@@ -80,7 +80,7 @@ export default function AdminBankingPaymentsPage() {
                 {payment.proofImageUrl ? (
                   <img src={payment.proofImageUrl} alt="proof" className="h-24 w-full object-cover" />
                 ) : (
-                  <div className="flex h-24 items-center justify-center text-xs text-gray-400">No proof</div>
+                  <div className="flex h-24 items-center justify-center text-xs text-gray-400">Chưa có ảnh xác minh</div>
                 )}
                 <span className="absolute inset-0 hidden items-center justify-center bg-black/40 text-white group-hover:flex">
                   <ZoomIn size={16} />
@@ -90,15 +90,15 @@ export default function AdminBankingPaymentsPage() {
               <div className="text-sm">
                 <p className="font-mono font-semibold text-gray-900 dark:text-white">Payment #{payment._id.slice(-8).toUpperCase()}</p>
                 <p className="text-gray-500">Order: #{payment.orderId.slice(-8).toUpperCase()}</p>
-                <p className="text-gray-500">Amount: <span className="font-semibold text-amber-600">{formatPrice(payment.amount)}</span></p>
+                <p className="text-gray-500">Số tiền: <span className="font-semibold text-amber-600">{formatPrice(payment.amount)}</span></p>
                 <p className="text-gray-500">
-                  Status:{" "}
+                  Trạng thái:{" "}
                   <span className="font-semibold text-gray-800 dark:text-gray-200">
                     {paymentStateLabel(payment.status, Boolean(payment.proofImageUrl))}
                   </span>
                 </p>
                 <p className="text-gray-500">
-                  {payment.proofImageUrl ? "Uploaded" : "Created"}:{" "}
+                  {payment.proofImageUrl ? "Đã tải lên" : "Ngày tạo"}:{" "}
                   {new Date(payment.updatedAt).toLocaleString("vi-VN")}
                 </p>
               </div>
@@ -109,7 +109,7 @@ export default function AdminBankingPaymentsPage() {
                   disabled={payment.status !== "waiting_verify" || !payment.proofImageUrl}
                   onClick={() => approveMutation.mutate(payment._id)}
                 >
-                  <CheckCircle2 size={14} /> Approve
+                  <CheckCircle2 size={14} /> Duyệt
                 </Button>
                 <Button
                   size="sm"
@@ -120,7 +120,7 @@ export default function AdminBankingPaymentsPage() {
                     setRejectDialogOpen(true);
                   }}
                 >
-                  <XCircle size={14} /> Reject
+                  <XCircle size={14} /> Từ chối
                 </Button>
               </div>
             </div>
@@ -128,18 +128,18 @@ export default function AdminBankingPaymentsPage() {
         ))}
       </div>
 
-      <Modal isOpen={!!imageZoom} onClose={() => setImageZoom(null)} title="Proof Preview" size="xl">
+      <Modal isOpen={!!imageZoom} onClose={() => setImageZoom(null)} title="Xem ảnh xác minh" size="xl">
         {imageZoom && <img src={imageZoom} alt="proof-zoom" className="max-h-[70vh] w-full rounded-xl object-contain" />}
       </Modal>
 
-      <Modal isOpen={rejectDialogOpen} onClose={() => setRejectDialogOpen(false)} title="Reject payment">
+      <Modal isOpen={rejectDialogOpen} onClose={() => setRejectDialogOpen(false)} title="Từ chối payment">
         <div className="space-y-3">
           <textarea
             rows={4}
             value={reason}
             onChange={(e) => setReason(e.target.value)}
             className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-900"
-            placeholder="Enter rejected reason"
+            placeholder="Nhập lý do từ chối"
           />
           <div className="flex justify-end">
             <Button
@@ -148,7 +148,7 @@ export default function AdminBankingPaymentsPage() {
               loading={rejectMutation.isPending}
               onClick={() => rejectMutation.mutate({ id: selectedId, rejectedReason: reason.trim() })}
             >
-              Confirm reject
+              Xác nhận từ chối
             </Button>
           </div>
         </div>
@@ -156,3 +156,7 @@ export default function AdminBankingPaymentsPage() {
     </div>
   );
 }
+
+
+
+

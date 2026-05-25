@@ -1,16 +1,17 @@
-import { CheckCircle2, Clock, XCircle } from "lucide-react";
+﻿import { CheckCircle2, Clock, XCircle } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
 import { Coupon, UserCouponStatus } from "@/types/coupon";
+import { isCouponExpired } from "@/lib/couponUtils";
 
-// For admin table — based on coupon fields
+// Badge cho bảng admin dựa trên trạng thái coupon.
 export function CouponAdminBadge({ coupon }: { coupon: Coupon }) {
-  const isExpired = new Date(coupon.expiresAt) <= new Date();
+  const isExpired = isCouponExpired(coupon.expiresAt);
 
   if (!coupon.isActive) {
     return (
       <Badge variant="danger" className="gap-1.5">
         <XCircle size={11} />
-        Disabled
+        Vô hiệu hóa
       </Badge>
     );
   }
@@ -18,25 +19,25 @@ export function CouponAdminBadge({ coupon }: { coupon: Coupon }) {
     return (
       <Badge variant="default" className="gap-1.5">
         <Clock size={11} />
-        Expired
+        Hết hạn
       </Badge>
     );
   }
   return (
     <Badge variant="success" className="gap-1.5">
       <CheckCircle2 size={11} />
-      Active
+      Đang hoạt động
     </Badge>
   );
 }
 
-// For user coupon card — based on UserCoupon.status
+// Badge cho coupon của user.
 export function CouponUserBadge({ status }: { status: UserCouponStatus }) {
   if (status === "used") {
     return (
       <Badge variant="info" className="gap-1.5">
         <CheckCircle2 size={11} />
-        Used
+        Đã dùng
       </Badge>
     );
   }
@@ -44,14 +45,16 @@ export function CouponUserBadge({ status }: { status: UserCouponStatus }) {
     return (
       <Badge variant="default" className="gap-1.5">
         <Clock size={11} />
-        Expired
+        Hết hạn
       </Badge>
     );
   }
   return (
     <Badge variant="success" className="gap-1.5">
       <CheckCircle2 size={11} />
-      Active
+      Có thể dùng
     </Badge>
   );
 }
+
+

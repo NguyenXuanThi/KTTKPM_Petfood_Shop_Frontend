@@ -14,7 +14,10 @@ export default function SupportDashboard() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   // Map pathname to tab
-  const getActiveTabFromPath = (): "messages" | "appointments" | "schedules" => {
+  const getActiveTabFromPath = ():
+    | "messages"
+    | "appointments"
+    | "schedules" => {
     const path = location.pathname.toLowerCase();
     if (path.includes("appointmentsmanagement")) return "appointments";
     if (path.includes("schedulesmanagement")) return "schedules";
@@ -64,7 +67,9 @@ export default function SupportDashboard() {
           >
             <Menu size={20} />
           </button>
-          <span className="ml-3 font-semibold text-gray-900 dark:text-white">Support Panel</span>
+          <span className="ml-3 font-semibold text-gray-900 dark:text-white">
+            Support Panel
+          </span>
         </div>
 
         {/* Tab Content */}

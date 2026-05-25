@@ -1,5 +1,5 @@
-export type CouponType = "percentage" | "fixed";
-export type CouponScope = "global" | "user" | "birthday";
+﻿export type CouponType = "percentage" | "fixed";
+export type CouponScope = "global" | "user" | "birthday" | "reward";
 export type UserCouponStatus = "active" | "used" | "expired";
 
 export interface Coupon {
@@ -12,7 +12,7 @@ export interface Coupon {
   scope: CouponScope;
   appliesTo: "order" | "shipping";
   maxDiscountAmount: number | null;
-  expiresAt: string;
+  expiresAt: string | null;
   isActive: boolean;
   usageLimit: number | null;
   usedCount: number;
@@ -40,7 +40,7 @@ export interface AvailableCoupon {
   minOrderAmount: number;
   maxDiscountAmount: number | null;
   appliesTo: "order" | "shipping";
-  expiresAt: string;
+  expiresAt: string | null;
   discountPreview: number;
   discountAmount: number;
   shippingDiscount: number;
@@ -77,7 +77,7 @@ export interface CreateCouponPayload {
   discountValue: number;
   minOrderAmount?: number;
   scope?: CouponScope;
-  expiresAt: string; // ISO string
+  expiresAt: string | null; // ISO string, null = never expires
   usageLimit?: number | null;
   perUserLimit?: number;
   appliesTo?: "order" | "shipping";
@@ -88,3 +88,5 @@ export interface AssignCouponPayload {
   couponId: string;
   userId: string;
 }
+
+

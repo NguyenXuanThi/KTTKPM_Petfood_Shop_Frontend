@@ -1,15 +1,19 @@
-import { Heart, MapPin, Package, ShieldCheck, Ticket, Truck, UserCircle2 } from "lucide-react";
+﻿import { Gift, Heart, MapPin, Package, RotateCcw, ShieldCheck, ShoppingBag, Ticket, Truck, UserCircle2 } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { cn } from "@/lib/utils";
 
 const menuItems = [
-  { to: "/my-account/profile", label: "Profile", icon: UserCircle2 },
-  { to: "/my-account/addresses", label: "Addresses", icon: MapPin },
+  { to: "/my-account/profile", label: "Hồ sơ", icon: UserCircle2 },
+  { to: "/my-account/addresses", label: "Địa chỉ", icon: MapPin },
   { to: "/my-account/wishlist", label: "Wishlist", icon: Heart },
-  { to: "/my-account/orders", label: "Orders", icon: Package },
-  { to: "/my-account/orders/shipping", label: "Shipping", icon: Truck },
+  { to: "/my-account/orders", label: "Order của tôi", icon: Package },
+  { to: "/my-account/orders/shipping", label: "Order đang giao", icon: Truck },
   { to: "/my-account/coupons", label: "Coupons", icon: Ticket },
-  { to: "/my-account/security", label: "Security", icon: ShieldCheck },
+  { to: "/rewards", label: "Phần thưởng", icon: Gift },
+  { to: "/rewards/wheel", label: "Lucky Wheel", icon: RotateCcw },
+  { to: "/rewards/shop", label: "Đổi thưởng", icon: ShoppingBag },
+  { to: "/rewards/history", label: "Lịch sử quay", icon: Gift },
+  { to: "/my-account/security", label: "Bảo mật", icon: ShieldCheck },
 ];
 
 export function AccountSidebar() {
@@ -61,3 +65,5 @@ export function AccountSidebar() {
     </>
   );
 }
+
+

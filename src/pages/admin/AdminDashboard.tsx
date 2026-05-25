@@ -1,4 +1,4 @@
-import { ArrowRight, Banknote, Clock3, Hourglass, UserPlus } from "lucide-react";
+﻿import { ArrowRight, Banknote, Clock3, Hourglass, UserPlus } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useDashboardStatistics } from "@/hooks/useStatistics";
 import { StatisticsCard } from "@/components/statistics/StatisticsCard";
@@ -26,7 +26,7 @@ export default function AdminDashboard() {
           Dashboard
         </h1>
         <p className="mt-2 text-gray-500 dark:text-gray-400">
-          Quick overview for today. Use detailed statistics pages for deeper analysis.
+          Tổng quan nhanh hôm nay. Mở từng trang thống kê để xem chi tiết hơn.
         </p>
       </div>
 
@@ -35,14 +35,14 @@ export default function AdminDashboard() {
       {data && (
         <>
           <div className="grid gap-4 md:grid-cols-4">
-            <StatisticsCard label="Revenue Today" value={formatPrice(data.revenueToday)} icon={<Banknote />} />
-            <StatisticsCard label="Pending Orders" value={data.pendingOrders} icon={<Clock3 />} />
-            <StatisticsCard label="Waiting Verify Payments" value={data.waitingVerifyPayments ?? 0} icon={<Hourglass />} />
-            <StatisticsCard label="New Users" value={data.newUsers ?? 0} icon={<UserPlus />} />
+            <StatisticsCard label="Doanh thu hôm nay" value={formatPrice(data.revenueToday)} icon={<Banknote />} />
+            <StatisticsCard label="Order chờ xử lý" value={data.pendingOrders} icon={<Clock3 />} />
+            <StatisticsCard label="Payment chờ xác minh" value={data.waitingVerifyPayments ?? 0} icon={<Hourglass />} />
+            <StatisticsCard label="User mới" value={data.newUsers ?? 0} icon={<UserPlus />} />
           </div>
 
           <section className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-gray-900">
-            <h2 className="text-lg font-bold text-gray-950 dark:text-white">Quick Links</h2>
+            <h2 className="text-lg font-bold text-gray-950 dark:text-white">Liên kết nhanh</h2>
             <div className="mt-4 grid gap-3 md:grid-cols-2">
               {links.map((link) => (
                 <Link
@@ -61,3 +61,5 @@ export default function AdminDashboard() {
     </div>
   );
 }
+
+

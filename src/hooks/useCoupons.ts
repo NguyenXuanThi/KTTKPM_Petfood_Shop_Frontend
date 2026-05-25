@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+﻿import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { couponService } from "@/services/coupon.service";
 import { AssignCouponPayload, CreateCouponPayload } from "@/types/coupon";
@@ -6,8 +6,7 @@ import { AssignCouponPayload, CreateCouponPayload } from "@/types/coupon";
 export const COUPONS_KEY = "coupons";
 export const MY_COUPONS_KEY = "my-coupons";
 
-// ─── Admin ────────────────────────────────────────────────────────────────────
-
+// --- Admin -----------------------------------------------------------------
 export function useAdminCoupons() {
   return useQuery({
     queryKey: [COUPONS_KEY],
@@ -23,10 +22,10 @@ export function useCreateCoupon() {
       couponService.createCoupon(payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [COUPONS_KEY] });
-      toast.success("Coupon created successfully");
+      toast.success("Tạo coupon thành công");
     },
     onError: (error: { response?: { data?: { message?: string } } }) => {
-      toast.error(error?.response?.data?.message ?? "Failed to create coupon");
+      toast.error(error?.response?.data?.message ?? "Không thể tạo coupon");
     },
   });
 }
@@ -38,10 +37,12 @@ export function useDisableCoupon() {
     mutationFn: (id: string) => couponService.disableCoupon(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [COUPONS_KEY] });
-      toast.success("Coupon disabled");
+      toast.success("Đã vô hiệu hóa coupon");
     },
     onError: (error: { response?: { data?: { message?: string } } }) => {
-      toast.error(error?.response?.data?.message ?? "Failed to disable coupon");
+      toast.error(
+        error?.response?.data?.message ?? "Không thể vô hiệu hóa coupon",
+      );
     },
   });
 }
@@ -54,15 +55,15 @@ export function useAssignCoupon() {
       couponService.assignCoupon(payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [COUPONS_KEY] });
-      toast.success("Coupon assigned to user");
+      toast.success("Đã gán coupon cho user");
     },
     onError: (error: { response?: { data?: { message?: string } } }) => {
-      toast.error(error?.response?.data?.message ?? "Failed to assign coupon");
+      toast.error(error?.response?.data?.message ?? "Không thể gán coupon");
     },
   });
 }
 
-// ─── User ─────────────────────────────────────────────────────────────────────
+// --- User ---------------------------------------------------------------------
 
 export function useMyCoupons() {
   return useQuery({

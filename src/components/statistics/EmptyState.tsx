@@ -1,5 +1,5 @@
-export function StatisticsEmptyState({
-  title = "No statistics data for this time range",
+﻿export function StatisticsEmptyState({
+  title = "Chưa có dữ liệu thống kê trong khoảng thời gian này",
 }: {
   title?: string;
 }) {
@@ -9,3 +9,5 @@ export function StatisticsEmptyState({
     </div>
   );
 }
+
+

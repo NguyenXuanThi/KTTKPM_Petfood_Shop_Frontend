@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+﻿import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
   ShoppingCart,
@@ -25,6 +25,7 @@ import {
   MegaMenu,
   MobileCategoryMenu,
 } from "@/components/CategoryMenu/MegaMenu";
+import { HeaderRewardBadge } from "@/components/rewards/HeaderRewardBadge";
 
 export function Navbar() {
   const { user, isAuthenticated, isAdmin, isSupport, logout } = useAuth();
@@ -74,7 +75,7 @@ export function Navbar() {
           : "bg-white dark:bg-gray-950",
       )}
     >
-      {/* ── Top bar ── */}
+      {/* Top bar */}
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4 md:px-6">
         {/* Logo */}
         <Link to="/" className="flex shrink-0 items-center gap-2">
@@ -114,6 +115,8 @@ export function Navbar() {
           </button>
 
           <LanguageSwitcher />
+
+          {isAuthenticated && <HeaderRewardBadge />}
 
           <Link
             to="/wishlist"
@@ -228,14 +231,14 @@ export function Navbar() {
         </div>
       </div>
 
-      {/* ── Mega menu bar (desktop) ── */}
+      {/* Mega menu bar (desktop) */}
       <div className="hidden border-t border-gray-100 dark:border-gray-800 md:block">
         <div className="mx-auto max-w-7xl px-4 py-1 md:px-6">
           <MegaMenu />
         </div>
       </div>
 
-      {/* ── Mobile menu ── */}
+      {/* Mobile menu */}
       <AnimatePresence>
         {menuOpen && (
           <motion.div

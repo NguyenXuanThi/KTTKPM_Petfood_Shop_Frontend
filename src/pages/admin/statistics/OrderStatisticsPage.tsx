@@ -1,4 +1,4 @@
-import { Clock3, Package, PackageCheck, Truck, XCircle } from "lucide-react";
+﻿import { Clock3, Package, PackageCheck, Truck, XCircle } from "lucide-react";
 import { useOrderStatistics } from "@/hooks/useStatistics";
 import { StatisticsCard } from "@/components/statistics/StatisticsCard";
 import { ChartCard } from "@/components/statistics/ChartCard";
@@ -14,23 +14,23 @@ export default function OrderStatisticsPage() {
   const data = query.data;
 
   return (
-    <StatisticsPageShell title="Thống kê đơn hàng" description="Tổng quan trạng thái đơn hàng và các đơn mới nhất." filter={filter} setFilter={setFilter}>
+    <StatisticsPageShell title="Thống kê đơn hàng" description="Tổng quan trạng thái order và các order mới nhất." filter={filter} setFilter={setFilter}>
       {query.isLoading && <StatisticsLoading />}
       {query.isError && <StatisticsError onRetry={() => query.refetch()} />}
       {data && (
         <div className="space-y-6">
           <div className="grid gap-4 md:grid-cols-5">
-            <StatisticsCard label="Total Orders" value={data.summary.totalOrders} icon={<Package />} />
-            <StatisticsCard label="Pending" value={data.summary.pendingOrders} icon={<Clock3 />} />
-            <StatisticsCard label="Shipping" value={data.summary.shippingOrders} icon={<Truck />} />
-            <StatisticsCard label="Completed" value={data.summary.completedOrders} icon={<PackageCheck />} />
-            <StatisticsCard label="Cancelled" value={data.summary.cancelledOrders} icon={<XCircle />} />
+            <StatisticsCard label="Tổng order" value={data.summary.totalOrders} icon={<Package />} />
+            <StatisticsCard label="Chờ xử lý" value={data.summary.pendingOrders} icon={<Clock3 />} />
+            <StatisticsCard label="Đang giao" value={data.summary.shippingOrders} icon={<Truck />} />
+            <StatisticsCard label="Hoàn thành" value={data.summary.completedOrders} icon={<PackageCheck />} />
+            <StatisticsCard label="Đã hủy" value={data.summary.cancelledOrders} icon={<XCircle />} />
           </div>
-          <ChartCard title="Orders by Status">
+          <ChartCard title="Order theo trạng thái">
             <OrderStatusChart data={data.chart} />
           </ChartCard>
           <StatisticsTable
-            columns={["Order ID", "User", "Total", "Payment", "Status", "Created At"]}
+            columns={["Order ID", "User", "Tổng", "Payment", "Trạng thái", "Ngày tạo"]}
             rows={data.recentOrders}
             renderRow={(row) => (
               <tr key={row.orderId}>
@@ -48,3 +48,7 @@ export default function OrderStatisticsPage() {
     </StatisticsPageShell>
   );
 }
+
+
+
+

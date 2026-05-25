@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+﻿import { useEffect, useMemo, useState } from "react";
 import { AlertCircle, MailCheck, RotateCcw } from "lucide-react";
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -47,11 +47,11 @@ export function InactiveAccountCard({
       const nextCooldown = Date.now() + COOLDOWN_MS;
       localStorage.setItem(storageKey, String(nextCooldown));
       setCooldownUntil(nextCooldown);
-      toast.success("Request sent to admin.");
+      toast.success("Đã gửi yêu cầu đến admin.");
     },
     onError: (error: { response?: { data?: { message?: string } } }) => {
       toast.error(
-        error?.response?.data?.message ?? "Failed to send reactivation request",
+        error?.response?.data?.message ?? "Không thể gửi yêu cầu kích hoạt lại",
       );
     },
   });
@@ -65,20 +65,20 @@ export function InactiveAccountCard({
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
             <h2 className="text-xl font-bold text-gray-900 dark:text-white">
-              Account Inactive
+              Tài khoản không hoạt động
             </h2>
             <span className="rounded-full border border-red-100 bg-red-50 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-red-500 dark:border-red-900/40 dark:bg-red-900/20 dark:text-red-300">
-              Review required
+              Cần admin xem xét
             </span>
           </div>
           <p className="mt-1.5 text-sm leading-6 text-gray-600 dark:text-gray-300">
-            {inactiveAccount.message || "Your account is currently inactive."}
+            {inactiveAccount.message || "Tài khoản của bạn hiện đang không hoạt động."}
           </p>
 
           <div className="mt-5 rounded-2xl border border-red-100/80 bg-red-50/50 p-4 dark:border-red-900/30 dark:bg-red-950/15">
             <div className="mb-3 flex items-center justify-between gap-3">
               <p className="text-xs font-semibold uppercase tracking-[0.16em] text-red-500 dark:text-red-300">
-                Deactivation reason
+                Lý do vô hiệu hóa
               </p>
               <div className="h-px flex-1 bg-gradient-to-r from-red-200/70 to-transparent dark:from-red-900/50" />
             </div>
@@ -86,8 +86,7 @@ export function InactiveAccountCard({
               {inactiveAccount.reason}
             </p>
             <p className="mt-3 text-xs leading-5 text-gray-500 dark:text-gray-400">
-              If you think this is a mistake, send a request and admin will
-              review it.
+              Nếu bạn cho rằng đây là nhầm lẫn, hãy gửi yêu cầu để admin xem xét.
             </p>
           </div>
 
@@ -103,7 +102,7 @@ export function InactiveAccountCard({
                 onClick={() => requestMutation.mutate()}
               >
                 <MailCheck size={16} />
-                {isCoolingDown ? "Request sent" : "Send request to admin"}
+                {isCoolingDown ? "Đã gửi yêu cầu" : "Gửi yêu cầu đến admin"}
               </Button>
               {onTryAgain && (
                 <Button
@@ -114,14 +113,14 @@ export function InactiveAccountCard({
                   onClick={onTryAgain}
                 >
                   <RotateCcw size={16} />
-                  Try another account
+                  Thử tài khoản khác
                 </Button>
               )}
             </div>
 
             {isCoolingDown && (
               <p className="text-center text-xs font-medium text-gray-500 dark:text-gray-400">
-                You can send another request in {formatRemaining(remainingMs)}.
+                Bạn có thể gửi yêu cầu tiếp theo sau {formatRemaining(remainingMs)}.
               </p>
             )}
           </div>
@@ -130,3 +129,5 @@ export function InactiveAccountCard({
     </div>
   );
 }
+
+

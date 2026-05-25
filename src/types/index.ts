@@ -281,8 +281,20 @@ export interface ShippingAddress {
 }
 
 export type PaymentMethod = "cash" | "banking";
-export type OrderStatus = "pending" | "confirmed" | "shipping" | "delivered" | "completed" | "cancelled";
-export type PaymentStatus = "unpaid" | "pending" | "waiting_verify" | "paid" | "failed" | "expired";
+export type OrderStatus =
+  | "pending"
+  | "confirmed"
+  | "shipping"
+  | "delivered"
+  | "completed"
+  | "cancelled";
+export type PaymentStatus =
+  | "unpaid"
+  | "pending"
+  | "waiting_verify"
+  | "paid"
+  | "failed"
+  | "expired";
 
 export interface Order {
   _id: string;
@@ -349,4 +361,3 @@ export interface UserSearchResult {
 }
 
 export type SortOption = "newest" | "price-asc" | "price-desc" | "name-asc";
-

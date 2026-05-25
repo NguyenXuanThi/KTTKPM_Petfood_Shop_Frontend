@@ -1,4 +1,4 @@
-import { AlertTriangle, Boxes, TrendingUp } from "lucide-react";
+﻿import { AlertTriangle, Boxes, TrendingUp } from "lucide-react";
 import { useProductStatistics } from "@/hooks/useStatistics";
 import { StatisticsCard } from "@/components/statistics/StatisticsCard";
 import { StatisticsTable } from "@/components/statistics/StatisticsTable";
@@ -13,20 +13,20 @@ export default function ProductStatisticsPage() {
   const data = query.data;
 
   return (
-    <StatisticsPageShell title="Thống kê product" description="Sản phẩm bán chạy từ order-service và tồn kho thấp từ product-service." filter={filter} setFilter={setFilter}>
+    <StatisticsPageShell title="Thống kê product" description="Product bán chạy từ order-service và tồn kho thấp từ product-service." filter={filter} setFilter={setFilter}>
       {query.isLoading && <StatisticsLoading />}
       {query.isError && <StatisticsError onRetry={() => query.refetch()} />}
       {data && (
         <div className="space-y-6">
           <div className="grid gap-4 md:grid-cols-3">
-            <StatisticsCard label="Total Products" value={data.summary.totalProducts} icon={<Boxes />} />
-            <StatisticsCard label="Low Stock Products" value={data.summary.lowStockProducts} icon={<AlertTriangle />} />
-            <StatisticsCard label="Top Selling Items" value={data.topSellingProducts.length} icon={<TrendingUp />} />
+            <StatisticsCard label="Tổng product" value={data.summary.totalProducts} icon={<Boxes />} />
+            <StatisticsCard label="Product sắp hết hàng" value={data.summary.lowStockProducts} icon={<AlertTriangle />} />
+            <StatisticsCard label="Product bán chạy" value={data.topSellingProducts.length} icon={<TrendingUp />} />
           </div>
 
           {data.topSellingProducts.length ? (
             <StatisticsTable
-              columns={["Product", "Sold Quantity", "Revenue"]}
+              columns={["Product", "Số lượng đã bán", "Doanh thu"]}
               rows={data.topSellingProducts}
               renderRow={(row) => (
                 <tr key={row.productId}>
@@ -42,11 +42,11 @@ export default function ProductStatisticsPage() {
               )}
             />
           ) : (
-            <StatisticsEmptyState title="No top-selling product data for this time range" />
+            <StatisticsEmptyState title="Chưa có dữ liệu product bán chạy trong khoảng thời gian này" />
           )}
 
           <StatisticsTable
-            columns={["Low Stock Product", "Stock"]}
+            columns={["Product sắp hết hàng", "Tồn kho"]}
             rows={data.lowStockList}
             renderRow={(row) => (
               <tr key={row.productId}>
@@ -65,3 +65,5 @@ export default function ProductStatisticsPage() {
     </StatisticsPageShell>
   );
 }
+
+

@@ -38,7 +38,7 @@ function SubColumn({ node }: { node: CategoryNode }) {
 // ─── Dropdown panel for one top-level item ────────────────────────────────────
 function MegaPanel({ node }: { node: CategoryNode }) {
   const cols = [...(node.children ?? [])].sort(
-    (a, b) => (a.menuOrder ?? 0) - (b.menuOrder ?? 0)
+    (a, b) => (a.menuOrder ?? 0) - (b.menuOrder ?? 0),
   );
 
   if (cols.length === 0) return null;
@@ -110,12 +110,19 @@ export function MegaMenu() {
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
   };
 
-  useEffect(() => () => { if (timeoutRef.current) clearTimeout(timeoutRef.current); }, []);
+  useEffect(
+    () => () => {
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    },
+    [],
+  );
 
   if (isLoading) return <MenuSkeleton />;
   if (!tree?.length) return null;
 
-  const topLevel = [...tree].sort((a, b) => (a.menuOrder ?? 0) - (b.menuOrder ?? 0));
+  const topLevel = [...tree].sort(
+    (a, b) => (a.menuOrder ?? 0) - (b.menuOrder ?? 0),
+  );
 
   return (
     <nav className="relative flex items-center gap-1">
@@ -164,7 +171,15 @@ export function MegaMenu() {
 }
 
 // ─── Mobile accordion version ─────────────────────────────────────────────────
-function MobileNode({ node, depth = 0, onNavigate }: { node: CategoryNode; depth?: number; onNavigate: () => void }) {
+function MobileNode({
+  node,
+  depth = 0,
+  onNavigate,
+}: {
+  node: CategoryNode;
+  depth?: number;
+  onNavigate: () => void;
+}) {
   const [open, setOpen] = useState(false);
   const hasChildren = (node.children?.length ?? 0) > 0;
 
@@ -184,7 +199,10 @@ function MobileNode({ node, depth = 0, onNavigate }: { node: CategoryNode; depth
             onClick={() => setOpen((v) => !v)}
             className="rounded-lg p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
           >
-            <ChevronRight size={14} className={`transition-transform ${open ? "rotate-90" : ""}`} />
+            <ChevronRight
+              size={14}
+              className={`transition-transform ${open ? "rotate-90" : ""}`}
+            />
           </button>
         )}
       </div>
@@ -193,7 +211,12 @@ function MobileNode({ node, depth = 0, onNavigate }: { node: CategoryNode; depth
           {[...(node.children ?? [])]
             .sort((a, b) => (a.menuOrder ?? 0) - (b.menuOrder ?? 0))
             .map((child) => (
-              <MobileNode key={child._id} node={child} depth={depth + 1} onNavigate={onNavigate} />
+              <MobileNode
+                key={child._id}
+                node={child}
+                depth={depth + 1}
+                onNavigate={onNavigate}
+              />
             ))}
         </div>
       )}

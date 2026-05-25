@@ -1,4 +1,4 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import { Plus, RefreshCw, Tag } from "lucide-react";
 import {
   useAdminCoupons,
@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Coupon, CreateCouponPayload } from "@/types/coupon";
+import { isCouponExpired } from "@/lib/couponUtils";
 
 export default function AdminCouponsPage() {
   const [createOpen, setCreateOpen] = useState(false);
@@ -43,9 +44,7 @@ export default function AdminCouponsPage() {
     setAssignTarget(null);
   };
 
-  const activeCoupons = coupons.filter(
-    (c) => c.isActive && new Date(c.expiresAt) > new Date()
-  ).length;
+  const activeCoupons = coupons.filter((c) => c.isActive && !isCouponExpired(c.expiresAt)).length;
 
   return (
     <div className="space-y-6">
@@ -56,9 +55,9 @@ export default function AdminCouponsPage() {
             <Tag size={22} />
           </div>
           <div>
-            <h1 className="text-2xl font-bold">Coupon Management</h1>
+            <h1 className="text-2xl font-bold">Quản lý Coupon</h1>
             <p className="text-sm text-gray-500 dark:text-gray-400">
-              Create, disable, and assign discount coupons to users.
+              Tạo, vô hiệu hóa và gán coupon cho user.
             </p>
           </div>
         </div>
@@ -70,23 +69,23 @@ export default function AdminCouponsPage() {
             disabled={isFetching}
           >
             <RefreshCw size={14} className={isFetching ? "animate-spin" : ""} />
-            Refresh
+            Làm mới
           </Button>
           <Button onClick={() => setCreateOpen(true)}>
             <Plus size={16} />
-            Create Coupon
+            Tạo coupon
           </Button>
         </div>
       </div>
 
       {/* Stats strip */}
       <div className="flex flex-wrap gap-2">
-        <Badge variant="info">Total: {coupons.length}</Badge>
-        <Badge variant="success">Active: {activeCoupons}</Badge>
+        <Badge variant="info">Tổng: {coupons.length}</Badge>
+        <Badge variant="success">Đang hoạt động: {activeCoupons}</Badge>
         <Badge variant="default">
-          Expired / Disabled: {coupons.length - activeCoupons}
+          Hết hạn / Vô hiệu: {coupons.length - activeCoupons}
         </Badge>
-        {isFetching && !isLoading && <Badge variant="warning">Refreshing…</Badge>}
+        {isFetching && !isLoading && <Badge variant="warning">Đang làm mới...</Badge>}
       </div>
 
       {/* Table card */}
@@ -95,11 +94,11 @@ export default function AdminCouponsPage() {
           <div className="p-8">
             <EmptyState
               icon={<Tag size={28} />}
-              title="Unable to load coupons"
-              description="Check the coupon-service connection and try again."
+              title="Không thể tải coupon"
+              description="Kiểm tra kết nối coupon-service rồi thử lại."
               action={
                 <Button onClick={() => refetch()}>
-                  <RefreshCw size={14} /> Retry
+                  <RefreshCw size={14} /> Thử lại
                 </Button>
               }
             />
@@ -108,11 +107,11 @@ export default function AdminCouponsPage() {
           <div className="p-8">
             <EmptyState
               icon={<Tag size={28} />}
-              title="No coupons yet"
-              description="Create your first coupon to get started."
+              title="Chưa có coupon nào"
+              description="Tạo coupon đầu tiên để bắt đầu."
               action={
                 <Button onClick={() => setCreateOpen(true)}>
-                  <Plus size={14} /> Create Coupon
+                  <Plus size={14} /> Tạo coupon
                 </Button>
               }
             />
@@ -145,3 +144,8 @@ export default function AdminCouponsPage() {
     </div>
   );
 }
+
+
+
+
+

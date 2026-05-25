@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+﻿import { useState, useRef, useEffect } from "react";
 import {
   useNavigate,
   useParams,
@@ -18,10 +18,10 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 
 const productSchema = z.object({
-  name: z.string().min(2, "Name is required").max(150),
+  name: z.string().min(2, "Tên product là bắt buộc").max(150),
   description: z.string().max(2000).optional(),
-  price: z.coerce.number().min(0, "Price must be >= 0"),
-  stock: z.coerce.number().min(0, "Stock must be >= 0"),
+  price: z.coerce.number().min(0, "Giá phải >= 0"),
+  stock: z.coerce.number().min(0, "Tồn kho phải >= 0"),
   categoryId: z.string().optional(),
   isActive: z.boolean().optional(),
 });
@@ -92,7 +92,7 @@ export default function AdminProductForm() {
 
   const onSubmit = async (data: ProductFormData) => {
     if (!isEdit && !imageFile) {
-      alert("Please select a product image");
+      alert("Vui lòng chọn ảnh product");
       return;
     }
 
@@ -130,7 +130,7 @@ export default function AdminProductForm() {
           </button>
         </Link>
         <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-          {isEdit ? "Edit Product" : "Add New Product"}
+          {isEdit ? "Chỉnh sửa Product" : "Thêm Product mới"}
         </h1>
       </div>
 
@@ -138,7 +138,7 @@ export default function AdminProductForm() {
         {/* Image upload */}
         <div className="rounded-2xl border border-gray-100 bg-white p-6 dark:border-gray-800 dark:bg-gray-900">
           <p className="mb-4 font-semibold text-gray-900 dark:text-white">
-            Product Image
+            Ảnh Product
           </p>
           <input
             ref={fileRef}
@@ -172,7 +172,7 @@ export default function AdminProductForm() {
               className="flex h-48 w-48 flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-gray-200 bg-gray-50 text-gray-400 transition-colors hover:border-amber-400 hover:bg-amber-50 dark:border-gray-700 dark:bg-gray-800 dark:hover:border-amber-600 dark:hover:bg-amber-900/20"
             >
               <ImagePlus size={28} />
-              <span className="text-xs font-medium">Upload Image</span>
+              <span className="text-xs font-medium">Tải ảnh lên</span>
             </button>
           )}
           {imagePreview && (
@@ -181,7 +181,7 @@ export default function AdminProductForm() {
               onClick={() => fileRef.current?.click()}
               className="mt-3 text-sm text-amber-500 hover:underline"
             >
-              Change image
+              Đổi ảnh
             </button>
           )}
         </div>
@@ -189,23 +189,23 @@ export default function AdminProductForm() {
         {/* Product details */}
         <div className="space-y-4 rounded-2xl border border-gray-100 bg-white p-6 dark:border-gray-800 dark:bg-gray-900">
           <p className="font-semibold text-gray-900 dark:text-white">
-            Product Details
+            Thông tin Product
           </p>
 
           <Input
-            label="Product Name *"
+            label="Tên Product *"
             error={errors.name?.message}
             {...register("name")}
           />
 
           <div>
             <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">
-              Description
+              Mô tả
             </label>
             <textarea
               {...register("description")}
               rows={4}
-              placeholder="Describe your product..."
+              placeholder="Mô tả product..."
               className="w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm text-gray-900 placeholder-gray-400 focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-100 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100"
             />
             {errors.description && (
@@ -217,14 +217,14 @@ export default function AdminProductForm() {
 
           <div className="grid grid-cols-2 gap-4">
             <Input
-              label="Price (₫) *"
+              label="Giá (₫) *"
               type="number"
               min={0}
               error={errors.price?.message}
               {...register("price")}
             />
             <Input
-              label="Stock *"
+              label="Tồn kho *"
               type="number"
               min={0}
               error={errors.stock?.message}
@@ -234,13 +234,13 @@ export default function AdminProductForm() {
 
           <div>
             <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">
-              Category
+              Danh mục
             </label>
             <select
               {...register("categoryId")}
               className="w-full rounded-xl border border-gray-200 bg-white px-3 py-2.5 text-sm text-gray-900 focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-100 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100"
             >
-              <option value="">— No category —</option>
+              <option value="">— Chưa chọn danh mục —</option>
               {categories.map((cat) => (
                 <option key={cat._id} value={cat._id}>
                   {"  ".repeat(cat.depth)}
@@ -262,7 +262,7 @@ export default function AdminProductForm() {
               <div className="h-5 w-9 rounded-full bg-gray-200 transition-colors peer-checked:bg-amber-500 dark:bg-gray-700" />
             </div>
             <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-              Active (visible in store)
+              Đang hoạt động (hiển thị trên cửa hàng)
             </span>
           </label>
         </div>
@@ -274,11 +274,11 @@ export default function AdminProductForm() {
             loading={isSubmitting}
             className="flex-1"
           >
-            {isEdit ? "Update Product" : "Create Product"}
+            {isEdit ? "Cập nhật Product" : "Tạo Product"}
           </Button>
           <Link to={returnTo}>
             <Button type="button" variant="outline" size="lg">
-              Cancel
+              Hủy
             </Button>
           </Link>
         </div>
@@ -286,3 +286,5 @@ export default function AdminProductForm() {
     </div>
   );
 }
+
+

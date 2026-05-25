@@ -2,7 +2,14 @@ import apiClient from "@/lib/axios";
 import { Order, Payment, PaymentStatus } from "@/types";
 
 export interface CreateOrderPayload {
-  selectedCartItemIds: string[];
+  selectedCartItemIds?: string[];
+  directItems?: Array<{
+    productId: string;
+    name: string;
+    price: number;
+    imageUrl: string;
+    quantity: number;
+  }>;
   paymentMethod: "cash" | "banking";
   addressId: string;
   couponCode?: string;

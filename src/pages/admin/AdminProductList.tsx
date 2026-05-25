@@ -1,4 +1,4 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import { Plus, Pencil, Trash2, Search, Eye, FolderTree } from "lucide-react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -39,35 +39,35 @@ export default function AdminProductList() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-            Products
+            Quản lý Product
           </h1>
           <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-            Global catalog view across all categories.
+            Xem toàn bộ catalog product trên tất cả danh mục.
           </p>
         </div>
         <div className="flex gap-2">
           <Link to="/admin/categories">
             <Button variant="outline">
-              <FolderTree size={16} /> Manage by Category
+              <FolderTree size={16} /> Quản lý theo danh mục
             </Button>
           </Link>
           <Link to="/admin/products/new?returnTo=%2Fadmin%2Fproducts">
             <Button>
-              <Plus size={16} /> Add Product
+              <Plus size={16} /> Thêm Product
             </Button>
           </Link>
         </div>
       </div>
 
       <div className="rounded-2xl border border-amber-100 bg-amber-50 px-4 py-3 text-sm text-amber-800 dark:border-amber-900/40 dark:bg-amber-900/10 dark:text-amber-300">
-        For large catalogs, use{" "}
-        <span className="font-semibold">Categories</span> as the primary
-        management workspace. This page remains a cross-category fallback view.
+        Với catalog lớn, hãy dùng{" "}
+        <span className="font-semibold">Categories</span> làm khu vực quản lý chính.
+        Trang này là góc nhìn tổng hợp qua mọi danh mục.
       </div>
 
       {/* Search */}
       <Input
-        placeholder="Search products..."
+        placeholder="Tìm product..."
         value={search}
         onChange={(e) => {
           setSearch(e.target.value);
@@ -88,14 +88,14 @@ export default function AdminProductList() {
         ) : products.length === 0 ? (
           <div className="p-12 text-center">
             <p className="text-4xl">📦</p>
-            <p className="mt-3 font-medium text-gray-500">No products found</p>
+            <p className="mt-3 font-medium text-gray-500">Không tìm thấy product</p>
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
                 <tr className="border-b border-gray-100 bg-gray-50 dark:border-gray-800 dark:bg-gray-800/50">
-                  {["Product", "Price", "Stock", "Status", "Actions"].map(
+                  {["Product", "Giá", "Tồn kho", "Trạng thái", "Thao tác"].map(
                     (h) => (
                       <th
                         key={h}
@@ -124,7 +124,7 @@ export default function AdminProductList() {
                           className="h-10 w-10 rounded-xl object-cover"
                           onError={(e) => {
                             (e.target as HTMLImageElement).src =
-                              "https://placehold.co/50x50/fef3c7/92400e?text=🐾";
+                              "https://placehold.co/50x50/fef3c7/92400e?text=P";
                           }}
                         />
                         <div className="min-w-0">
@@ -151,7 +151,7 @@ export default function AdminProductList() {
                     </td>
                     <td className="px-4 py-3">
                       <Badge variant={product.isActive ? "success" : "danger"}>
-                        {product.isActive ? "Active" : "Inactive"}
+                        {product.isActive ? "Đang hoạt động" : "Không hoạt động"}
                       </Badge>
                     </td>
                     <td className="px-4 py-3">
@@ -194,16 +194,16 @@ export default function AdminProductList() {
       <Modal
         isOpen={!!deleteTarget}
         onClose={() => setDeleteTarget(null)}
-        title="Delete Product"
+        title="Xóa Product"
         size="sm"
       >
         <div className="space-y-4">
           <p className="text-sm text-gray-600 dark:text-gray-400">
-            Are you sure you want to delete{" "}
+            Bạn có chắc muốn xóa{" "}
             <span className="font-semibold text-gray-900 dark:text-white">
               {deleteTarget?.name}
             </span>
-            ? This action cannot be undone.
+            ? Thao tác này không thể hoàn tác.
           </p>
           <div className="flex gap-3">
             <Button
@@ -212,14 +212,14 @@ export default function AdminProductList() {
               loading={deleteMutation.isPending}
               className="flex-1"
             >
-              Delete
+              Xóa
             </Button>
             <Button
               variant="outline"
               onClick={() => setDeleteTarget(null)}
               className="flex-1"
             >
-              Cancel
+              Hủy
             </Button>
           </div>
         </div>
@@ -227,3 +227,5 @@ export default function AdminProductList() {
     </div>
   );
 }
+
+

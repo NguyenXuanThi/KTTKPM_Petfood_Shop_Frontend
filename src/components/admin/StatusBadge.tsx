@@ -1,4 +1,4 @@
-import { CheckCircle2, XCircle } from "lucide-react";
+﻿import { CheckCircle2, XCircle } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
 
 interface StatusBadgeProps {
@@ -10,7 +10,7 @@ export function StatusBadge({ isActive = true }: StatusBadgeProps) {
     return (
       <Badge variant="danger" className="gap-1.5">
         <XCircle size={12} />
-        Inactive
+        Không hoạt động
       </Badge>
     );
   }
@@ -18,7 +18,9 @@ export function StatusBadge({ isActive = true }: StatusBadgeProps) {
   return (
     <Badge variant="success" className="gap-1.5">
       <CheckCircle2 size={12} />
-      Active
+      Đang hoạt động
     </Badge>
   );
 }
+
+

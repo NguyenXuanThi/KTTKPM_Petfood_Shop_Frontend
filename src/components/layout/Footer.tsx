@@ -89,8 +89,9 @@ export function Footer() {
             </h4>
             <ul className="space-y-3">
               {[
-                { icon: <Mail size={14} />, text: "hello@pawmart.vn" },
-                { icon: <Phone size={14} />, text: "+84 28 1234 5678" },
+                { icon: <Mail size={14} />, text: "vupro0211@gmail.com" },
+                { icon: <Phone size={14} />, text: "0338975317" },
+                { icon: <Phone size={14} />, text: "0902926344" },
                 { icon: <MapPin size={14} />, text: "Ho Chi Minh City, VN" },
               ].map(({ icon, text }, i) => (
                 <li
@@ -110,7 +111,9 @@ export function Footer() {
             © {new Date().getFullYear()} PawMart. {t("pawmart.footer.rights")}
           </p>
           <p className="flex items-center gap-1 text-xs text-gray-400">
-            {t("pawmart.footer.madeWith")} <Heart size={12} className="text-red-400" fill="currentColor" /> {t("pawmart.footer.forPets")}
+            {t("pawmart.footer.madeWith")}{" "}
+            <Heart size={12} className="text-red-400" fill="currentColor" />{" "}
+            {t("pawmart.footer.forPets")}
           </p>
         </div>
       </div>

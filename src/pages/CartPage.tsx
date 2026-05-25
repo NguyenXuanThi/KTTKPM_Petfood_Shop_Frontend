@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
   Minus, Plus, Trash2, ShoppingBag, ArrowRight,
-  AlertTriangle, RefreshCw, TrendingUp, PackageX,
+  AlertTriangle, TrendingUp, PackageX,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTranslation } from "react-i18next";
@@ -342,11 +342,7 @@ export default function CartPage() {
               loading={isValidating}
               disabled={(selectedItems.length === 0 || (selectedHasIssues && !isValidating)) && !isValidating}
             >
-              {isValidating ? (
-                <>
-                  <RefreshCw size={16} className="animate-spin" /> Validating...
-                </>
-              ) : (
+              {isValidating ? "Đang chuyển đến thanh toán..." : (
                 <>
                   {t("cart.checkout", "Proceed to Checkout")} <ArrowRight size={16} />
                 </>

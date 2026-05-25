@@ -1,4 +1,4 @@
-import { Skeleton } from "@/components/ui/Skeleton";
+﻿import { Skeleton } from "@/components/ui/Skeleton";
 import { Button } from "@/components/ui/Button";
 
 export function StatisticsLoading() {
@@ -18,11 +18,14 @@ export function StatisticsLoading() {
 export function StatisticsError({ onRetry }: { onRetry: () => void }) {
   return (
     <div className="rounded-2xl border border-red-100 bg-red-50 p-6 text-red-700 dark:border-red-900/40 dark:bg-red-900/20 dark:text-red-300">
-      <h2 className="font-bold">Unable to load statistics</h2>
-      <p className="mt-1 text-sm">Please check the service connection and try again.</p>
+      <h2 className="font-bold">Không thể tải dữ liệu thống kê</h2>
+      <p className="mt-1 text-sm">Vui lòng kiểm tra kết nối service rồi thử lại.</p>
       <Button className="mt-4" variant="danger" onClick={onRetry}>
-        Retry
+        Thử lại
       </Button>
     </div>
   );
 }
+
+
+

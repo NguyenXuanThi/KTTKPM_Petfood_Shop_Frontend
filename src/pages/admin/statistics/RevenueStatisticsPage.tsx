@@ -1,4 +1,4 @@
-import { Banknote, PackageCheck, Receipt } from "lucide-react";
+﻿import { Banknote, PackageCheck, Receipt } from "lucide-react";
 import { useRevenueStatistics } from "@/hooks/useStatistics";
 import { StatisticsCard } from "@/components/statistics/StatisticsCard";
 import { ChartCard } from "@/components/statistics/ChartCard";
@@ -17,7 +17,7 @@ export default function RevenueStatisticsPage() {
   return (
     <StatisticsPageShell
       title="Thống kê doanh thu"
-      description="Theo dõi doanh thu đã thanh toán, số đơn paid và xu hướng doanh thu theo thời gian."
+      description="Theo dõi doanh thu đã paid, số order paid và xu hướng doanh thu theo thời gian."
       filter={filter}
       setFilter={setFilter}
     >
@@ -26,19 +26,19 @@ export default function RevenueStatisticsPage() {
       {data && (
         <div className="space-y-6">
           <div className="grid gap-4 md:grid-cols-3">
-            <StatisticsCard label="Total Revenue" value={formatPrice(data.summary.totalRevenue)} icon={<Banknote />} />
-            <StatisticsCard label="Paid Revenue" value={formatPrice(data.summary.paidRevenue)} icon={<Receipt />} />
-            <StatisticsCard label="Average Order Value" value={formatPrice(data.summary.averageOrderValue)} icon={<PackageCheck />} />
+            <StatisticsCard label="Tổng doanh thu" value={formatPrice(data.summary.totalRevenue)} icon={<Banknote />} />
+            <StatisticsCard label="Doanh thu đã paid" value={formatPrice(data.summary.paidRevenue)} icon={<Receipt />} />
+            <StatisticsCard label="Giá trị order trung bình" value={formatPrice(data.summary.averageOrderValue)} icon={<PackageCheck />} />
           </div>
           {data.chart.length ? (
-            <ChartCard title="Revenue Over Time">
+            <ChartCard title="Doanh thu theo thời gian">
               <RevenueLineChart data={data.chart} />
             </ChartCard>
           ) : (
             <StatisticsEmptyState />
           )}
           <StatisticsTable
-            columns={["Date", "Total Orders", "Paid Orders", "Revenue"]}
+            columns={["Ngày", "Tổng order", "Order đã paid", "Doanh thu"]}
             rows={data.table}
             renderRow={(row) => (
               <tr key={row.date}>
@@ -54,3 +54,7 @@ export default function RevenueStatisticsPage() {
     </StatisticsPageShell>
   );
 }
+
+
+
+

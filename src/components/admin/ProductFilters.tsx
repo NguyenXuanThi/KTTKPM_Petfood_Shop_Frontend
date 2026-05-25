@@ -1,4 +1,4 @@
-import { ArrowUpDown, Plus, Search, Sparkles } from "lucide-react";
+﻿import { ArrowUpDown, Plus, Search, Sparkles } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -17,10 +17,10 @@ interface ProductFiltersProps {
 }
 
 const SORT_OPTIONS = [
-  { value: "createdAt:desc", label: "Newest first" },
-  { value: "name:asc", label: "Name A → Z" },
-  { value: "price:asc", label: "Price low → high" },
-  { value: "price:desc", label: "Price high → low" },
+  { value: "createdAt:desc", label: "Mới nhất trước" },
+  { value: "name:asc", label: "Tên A → Z" },
+  { value: "price:asc", label: "Giá thấp → cao" },
+  { value: "price:desc", label: "Giá cao → thấp" },
 ];
 
 export function ProductFilters({
@@ -42,23 +42,23 @@ export function ProductFilters({
             <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
               {selectedCategoryName}
             </h2>
-            <Badge variant="info">Selected category</Badge>
-            {isFetching && <Badge variant="outline">Updating…</Badge>}
+            <Badge variant="info">Danh mục đang chọn</Badge>
+            {isFetching && <Badge variant="outline">Đang cập nhật...</Badge>}
           </div>
           <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-            {total} product{total === 1 ? "" : "s"} in this category.
+            {total} product trong danh mục này.
           </p>
         </div>
 
         <div className="flex flex-wrap gap-2">
           <Button variant="ghost" size="sm" onClick={onClearFilters}>
             <Sparkles size={14} />
-            Clear filters
+            Xóa bộ lọc
           </Button>
           <Link to={addProductHref}>
             <Button size="sm">
               <Plus size={14} />
-              Add Product
+              Thêm Product
             </Button>
           </Link>
         </div>
@@ -66,14 +66,14 @@ export function ProductFilters({
 
       <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr),220px]">
         <Input
-          placeholder={`Search within ${selectedCategoryName.toLowerCase()}...`}
+          placeholder={`Tìm trong ${selectedCategoryName.toLowerCase()}...`}
           value={search}
           onChange={(e) => onSearchChange(e.target.value)}
           leftIcon={<Search size={14} />}
         />
 
         <label className="flex flex-col gap-1.5">
-          <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Sort by</span>
+          <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Sắp xếp theo</span>
           <div className="relative">
             <ArrowUpDown
               size={14}
@@ -96,3 +96,4 @@ export function ProductFilters({
     </div>
   );
 }
+

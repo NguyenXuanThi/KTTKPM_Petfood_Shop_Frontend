@@ -1,4 +1,10 @@
-import { MessageSquare, Calendar, Clock, LogOut, ChevronRight } from "lucide-react";
+import {
+  MessageSquare,
+  Calendar,
+  Clock,
+  LogOut,
+  ChevronRight,
+} from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { cn } from "@/lib/utils";
 
@@ -20,9 +26,21 @@ export default function SupportSidebar({
   const { user } = useAuth();
 
   const tabs = [
-    { id: "messages" as const, label: "Quản lý tin nhắn", icon: <MessageSquare size={18} /> },
-    { id: "appointments" as const, label: "Quản lý đặt lịch", icon: <Calendar size={18} /> },
-    { id: "schedules" as const, label: "Quản lý lịch hẹn", icon: <Clock size={18} /> },
+    {
+      id: "messages" as const,
+      label: "Quản lý tin nhắn",
+      icon: <MessageSquare size={18} />,
+    },
+    {
+      id: "appointments" as const,
+      label: "Quản lý đặt lịch",
+      icon: <Calendar size={18} />,
+    },
+    {
+      id: "schedules" as const,
+      label: "Quản lý lịch hẹn",
+      icon: <Clock size={18} />,
+    },
   ];
 
   const sidebarContent = (
@@ -34,8 +52,12 @@ export default function SupportSidebar({
             P
           </div>
           <div>
-            <div className="font-black text-gray-950 dark:text-white">PawMart</div>
-            <div className="text-xs text-gray-500 dark:text-gray-400">Support Panel</div>
+            <div className="font-black text-gray-950 dark:text-white">
+              PawMart
+            </div>
+            <div className="text-xs text-gray-500 dark:text-gray-400">
+              Support Panel
+            </div>
           </div>
         </div>
       </header>
@@ -64,7 +86,13 @@ export default function SupportSidebar({
             />
             {tab.icon}
             <span className="flex-1 text-left">{tab.label}</span>
-            <ChevronRight size={14} className={cn("opacity-35 transition", activeTab === tab.id && "opacity-70")} />
+            <ChevronRight
+              size={14}
+              className={cn(
+                "opacity-35 transition",
+                activeTab === tab.id && "opacity-70",
+              )}
+            />
           </button>
         ))}
       </nav>
@@ -74,7 +102,11 @@ export default function SupportSidebar({
         <div className="mb-3 flex items-center gap-3 rounded-2xl bg-gray-50 p-3 dark:bg-gray-900">
           <div className="h-10 w-10 shrink-0 overflow-hidden rounded-full bg-orange-100 ring-1 ring-orange-200 dark:bg-orange-500/10 dark:ring-orange-500/20">
             {user?.avatarUrl ? (
-              <img src={user.avatarUrl} alt={user.fullName} className="h-full w-full object-cover" />
+              <img
+                src={user.avatarUrl}
+                alt={user.fullName}
+                className="h-full w-full object-cover"
+              />
             ) : (
               <span className="flex h-full w-full items-center justify-center text-sm font-bold text-orange-500">
                 {user?.fullName?.[0]?.toUpperCase()}
@@ -82,8 +114,12 @@ export default function SupportSidebar({
             )}
           </div>
           <div className="min-w-0">
-            <div className="truncate text-sm font-semibold text-gray-950 dark:text-white">{user?.fullName}</div>
-            <div className="truncate text-xs text-gray-500 dark:text-gray-400">{user?.email}</div>
+            <div className="truncate text-sm font-semibold text-gray-950 dark:text-white">
+              {user?.fullName}
+            </div>
+            <div className="truncate text-xs text-gray-500 dark:text-gray-400">
+              {user?.email}
+            </div>
           </div>
         </div>
         <button
@@ -102,7 +138,10 @@ export default function SupportSidebar({
 
       {sidebarOpen && (
         <div className="fixed inset-0 z-50 lg:hidden">
-          <div className="absolute inset-0 bg-black/60" onClick={() => setSidebarOpen(false)} />
+          <div
+            className="absolute inset-0 bg-black/60"
+            onClick={() => setSidebarOpen(false)}
+          />
           <div className="absolute left-0 top-0 h-full">{sidebarContent}</div>
         </div>
       )}

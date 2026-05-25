@@ -12,14 +12,18 @@ import { Input } from "@/components/ui/Input";
 import { InactiveAccountCard } from "@/components/admin/InactiveAccountCard";
 
 const loginSchema = z.object({
-  email: z.string().email("Invalid email address"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
+  email: z
+    .string()
+    .trim()
+    .min(1, "Vui lòng nhập email")
+    .email("Email không hợp lệ"),
+  password: z.string().min(1, "Vui lòng nhập mật khẩu"),
 });
 
 type LoginFormData = z.infer<typeof loginSchema>;
 
 export default function LoginPage() {
-  const { login, isLoggingIn, inactiveAccount, clearInactiveAccount } =
+  const { login, isLoggingIn, inactiveAccount, clearInactiveAccount, loginError, clearLoginError } =
     useAuth();
   const [showPass, setShowPass] = useState(false);
   const { t } = useTranslation();
@@ -65,7 +69,10 @@ export default function LoginPage() {
           )}
 
           <form
-            onSubmit={handleSubmit((data) => login(data))}
+            onSubmit={handleSubmit((data) => {
+              clearLoginError();
+              login(data);
+            })}
             className="space-y-4"
           >
             <Input
@@ -74,6 +81,7 @@ export default function LoginPage() {
               placeholder="you@example.com"
               leftIcon={<Mail size={14} />}
               error={errors.email?.message}
+              onInput={clearLoginError}
               {...register("email")}
             />
 
@@ -92,8 +100,15 @@ export default function LoginPage() {
                 </button>
               }
               error={errors.password?.message}
+              onInput={clearLoginError}
               {...register("password")}
             />
+
+            {loginError && (
+              <div className="rounded-xl border border-red-100 bg-red-50 px-3 py-2 text-sm font-medium text-red-600 dark:border-red-900/40 dark:bg-red-950/30 dark:text-red-300">
+                {loginError}
+              </div>
+            )}
 
             <div className="flex items-center justify-between">
               <label className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
@@ -103,12 +118,12 @@ export default function LoginPage() {
                 />
                 {t("pawmart.auth.rememberMe")}
               </label>
-              <button
-                type="button"
+              <Link
+                to="/forgot-password"
                 className="text-sm text-amber-500 hover:underline"
               >
                 {t("pawmart.auth.forgotPassword")}
-              </button>
+              </Link>
             </div>
 
             <Button
@@ -117,7 +132,7 @@ export default function LoginPage() {
               loading={isLoggingIn}
               className="w-full"
             >
-              {t("pawmart.auth.signIn")}
+              {isLoggingIn ? "Đang đăng nhập..." : t("pawmart.auth.signIn")}
             </Button>
           </form>
 

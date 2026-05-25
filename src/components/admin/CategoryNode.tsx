@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+﻿import { useEffect, useState } from "react";
 import { ChevronRight, Folder, FolderOpen, Pencil, Plus, Trash2 } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { CategoryNode as CategoryTreeItem } from "@/types";
@@ -93,7 +93,7 @@ export function CategoryNode({
               onAddChild(nodeId);
             }}
             className="rounded-lg p-1.5 text-gray-400 hover:bg-emerald-50 hover:text-emerald-600 dark:hover:bg-emerald-900/20"
-            title="Add child category"
+            title="Thêm danh mục con"
           >
             <Plus size={13} />
           </button>
@@ -104,7 +104,7 @@ export function CategoryNode({
               onEdit(node);
             }}
             className="rounded-lg p-1.5 text-gray-400 hover:bg-amber-50 hover:text-amber-600 dark:hover:bg-amber-900/20"
-            title="Edit category"
+            title="Chỉnh sửa category"
           >
             <Pencil size={13} />
           </button>
@@ -115,7 +115,7 @@ export function CategoryNode({
               onDelete(node);
             }}
             className="rounded-lg p-1.5 text-gray-400 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-900/20"
-            title="Delete category"
+            title="Xóa category"
           >
             <Trash2 size={13} />
           </button>
@@ -152,3 +152,4 @@ export function CategoryNode({
     </div>
   );
 }
+

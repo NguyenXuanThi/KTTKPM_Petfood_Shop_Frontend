@@ -14,9 +14,9 @@ const formatDate = (value: string) =>
   new Intl.DateTimeFormat("vi-VN", { dateStyle: "medium", timeStyle: "short" }).format(new Date(value));
 
 const statusOptions = [
-  { value: "all", label: "All" },
-  { value: "visible", label: "Visible" },
-  { value: "hidden", label: "Hidden" },
+  { value: "all", label: "Tất cả" },
+  { value: "visible", label: "Đang hiển thị" },
+  { value: "hidden", label: "Đã ẩn" },
 ] as const;
 
 function ReviewAdminCard({ review }: { review: Review }) {
@@ -49,9 +49,9 @@ function ReviewAdminCard({ review }: { review: Review }) {
       <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
-            <h3 className="font-bold text-gray-900 dark:text-white">{review.fullName || "Customer"}</h3>
+            <h3 className="font-bold text-gray-900 dark:text-white">{review.fullName || "Khách hàng"}</h3>
             <Badge variant={review.status === "visible" ? "success" : "warning"}>{review.status}</Badge>
-            {(review.isVerifiedPurchase ?? review.verifiedPurchase) && <Badge variant="info">Verified purchase</Badge>}
+            {(review.isVerifiedPurchase ?? review.verifiedPurchase) && <Badge variant="info">Đã mua hàng</Badge>}
           </div>
           <div className="mt-2 flex flex-wrap items-center gap-3">
             <StarRating value={review.rating} readonly size="sm" />
@@ -65,7 +65,7 @@ function ReviewAdminCard({ review }: { review: Review }) {
           </div>
           {review.status === "hidden" && review.hiddenReason && (
             <p className="mt-3 rounded-xl bg-amber-50 px-3 py-2 text-xs text-amber-700 dark:bg-amber-950/20 dark:text-amber-300">
-              Hidden reason: {review.hiddenReason}
+              Lý do ẩn: {review.hiddenReason}
             </p>
           )}
         </div>
@@ -73,47 +73,47 @@ function ReviewAdminCard({ review }: { review: Review }) {
         <div className="flex flex-wrap gap-2 lg:justify-end">
           {review.status === "visible" ? (
             <Button type="button" variant="outline" size="sm" loading={hideReview.isPending} onClick={() => setHideOpen(true)}>
-              <EyeOff size={14} /> Hide
+              <EyeOff size={14} /> Ẩn
             </Button>
           ) : (
             <Button type="button" variant="outline" size="sm" loading={showReview.isPending} onClick={() => showReview.mutate(review._id)}>
-              <Eye size={14} /> Show
+              <Eye size={14} /> Hiện
             </Button>
           )}
           <Button type="button" variant="danger" size="sm" loading={deleteReview.isPending} onClick={() => setDeleteOpen(true)}>
-            <Trash2 size={14} /> Delete
+            <Trash2 size={14} /> Xóa
           </Button>
         </div>
       </div>
-      <Modal isOpen={hideOpen} onClose={() => setHideOpen(false)} title="Hide review" size="md">
+      <Modal isOpen={hideOpen} onClose={() => setHideOpen(false)} title="Ẩn review" size="md">
         <div className="space-y-4">
           <p className="text-sm text-gray-500 dark:text-gray-400">
-            Please provide a reason. This review will no longer appear publicly.
+            Vui lòng nhập lý do. Review này sẽ không còn hiển thị công khai.
           </p>
           <textarea
             rows={4}
             value={reason}
             onChange={(event) => setReason(event.target.value)}
-            placeholder="Reason for hiding this review..."
+            placeholder="Lý do ẩn review..."
             className="w-full rounded-2xl border border-gray-200 bg-white px-4 py-3 text-sm outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-100 dark:border-gray-700 dark:bg-gray-900 dark:text-white"
           />
           <div className="flex justify-end gap-3">
-            <Button type="button" variant="outline" onClick={() => setHideOpen(false)}>Cancel</Button>
+            <Button type="button" variant="outline" onClick={() => setHideOpen(false)}>Hủy</Button>
             <Button type="button" loading={hideReview.isPending} disabled={!reason.trim()} onClick={handleHide}>
-              Hide review
+              Ẩn review
             </Button>
           </div>
         </div>
       </Modal>
-      <Modal isOpen={deleteOpen} onClose={() => setDeleteOpen(false)} title="Delete review" size="sm">
+      <Modal isOpen={deleteOpen} onClose={() => setDeleteOpen(false)} title="Xóa review" size="sm">
         <div className="space-y-4">
           <p className="text-sm text-gray-600 dark:text-gray-300">
-            This permanently removes the review. This action cannot be undone.
+            Review sẽ bị xóa vĩnh viễn. Thao tác này không thể hoàn tác.
           </p>
           <div className="flex justify-end gap-3">
-            <Button type="button" variant="outline" onClick={() => setDeleteOpen(false)}>Cancel</Button>
+            <Button type="button" variant="outline" onClick={() => setDeleteOpen(false)}>Hủy</Button>
             <Button type="button" variant="danger" loading={deleteReview.isPending} onClick={handleDelete}>
-              Delete
+              Xóa
             </Button>
           </div>
         </div>
@@ -134,14 +134,14 @@ export default function AdminReviewsPage() {
     <div className="space-y-6">
       <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
         <div>
-          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-amber-500">Moderation</p>
+          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-amber-500">Kiểm duyệt</p>
           <h1 className="text-3xl font-black text-gray-950 dark:text-white">Quản lý đánh giá</h1>
           <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-            Hide, restore, or delete customer reviews from verified purchases.
+            Ẩn, khôi phục hoặc xóa review từ các đơn mua đã xác minh.
           </p>
         </div>
         <Button type="button" variant="outline" loading={isFetching} onClick={() => refetch()}>
-          <RefreshCw size={16} /> Refresh
+          <RefreshCw size={16} /> Làm mới
         </Button>
       </div>
 
@@ -153,7 +153,7 @@ export default function AdminReviewsPage() {
               setSearch(event.target.value);
               setPage(1);
             }}
-            placeholder="Search by customer name or comment..."
+            placeholder="Tìm theo tên khách hoặc nội dung review..."
             leftIcon={<Search size={16} />}
           />
           <div className="flex rounded-xl bg-gray-100 p-1 dark:bg-gray-800">
@@ -181,9 +181,9 @@ export default function AdminReviewsPage() {
       {isError ? (
         <EmptyState
           icon={<MessageSquareText size={28} />}
-          title="Unable to load reviews"
-          description="Review-service may be unavailable. Please try again."
-          action={<Button type="button" variant="outline" onClick={() => refetch()}>Retry</Button>}
+          title="Không thể tải review"
+          description="review-service có thể đang không khả dụng. Vui lòng thử lại."
+          action={<Button type="button" variant="outline" onClick={() => refetch()}>Thử lại</Button>}
         />
       ) : isLoading ? (
         <div className="space-y-4">
@@ -205,10 +205,14 @@ export default function AdminReviewsPage() {
       ) : (
         <EmptyState
           icon={<MessageSquareText size={28} />}
-          title="No reviews found"
-          description="Try changing filters or wait for customers to submit reviews."
+          title="Không tìm thấy review"
+          description="Thử đổi bộ lọc hoặc chờ khách gửi review."
         />
       )}
     </div>
   );
 }
+
+
+
+

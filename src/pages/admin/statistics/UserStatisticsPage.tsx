@@ -1,4 +1,4 @@
-import { UserCheck, UserPlus, UserX, Users } from "lucide-react";
+﻿import { UserCheck, UserPlus, UserX, Users } from "lucide-react";
 import { useUserStatistics } from "@/hooks/useStatistics";
 import { StatisticsCard } from "@/components/statistics/StatisticsCard";
 import { ChartCard } from "@/components/statistics/ChartCard";
@@ -19,16 +19,16 @@ export default function UserStatisticsPage() {
       {data && (
         <div className="space-y-6">
           <div className="grid gap-4 md:grid-cols-4">
-            <StatisticsCard label="New Users" value={data.summary.newUsers} icon={<UserPlus />} />
-            <StatisticsCard label="Active Users" value={data.summary.activeUsers} icon={<UserCheck />} />
-            <StatisticsCard label="Inactive Users" value={data.summary.inactiveUsers} icon={<UserX />} />
-            <StatisticsCard label="Total Users" value={data.summary.totalUsers} icon={<Users />} />
+            <StatisticsCard label="User mới" value={data.summary.newUsers} icon={<UserPlus />} />
+            <StatisticsCard label="User đang hoạt động" value={data.summary.activeUsers} icon={<UserCheck />} />
+            <StatisticsCard label="User không hoạt động" value={data.summary.inactiveUsers} icon={<UserX />} />
+            <StatisticsCard label="Tổng user" value={data.summary.totalUsers} icon={<Users />} />
           </div>
-          <ChartCard title="New Users Over Time">
+          <ChartCard title="User mới theo thời gian">
             <UserLineChart data={data.chart} />
           </ChartCard>
           <StatisticsTable
-            columns={["User", "Email", "Role", "Joined At", "Last Login", "Status"]}
+            columns={["User", "Email", "Role", "Ngày tham gia", "Lần đăng nhập cuối", "Trạng thái"]}
             rows={data.recentUsers}
             renderRow={(row) => (
               <tr key={row.userId}>
@@ -37,7 +37,7 @@ export default function UserStatisticsPage() {
                 <td className="px-4 py-3">{row.role}</td>
                 <td className="px-4 py-3">{formatDate(row.createdAt)}</td>
                 <td className="px-4 py-3">{formatDate(row.lastLoginAt)}</td>
-                <td className="px-4 py-3">{row.isActive ? "Active" : "Inactive"}</td>
+                <td className="px-4 py-3">{row.isActive ? "Đang hoạt động" : "Không hoạt động"}</td>
               </tr>
             )}
           />
@@ -46,3 +46,5 @@ export default function UserStatisticsPage() {
     </StatisticsPageShell>
   );
 }
+
+

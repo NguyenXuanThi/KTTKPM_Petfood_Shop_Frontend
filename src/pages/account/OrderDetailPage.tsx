@@ -1,7 +1,7 @@
-import { useMemo, useState } from "react";
+﻿import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link, useParams } from "react-router-dom";
-import { ArrowLeft, CheckCircle2, CreditCard, MapPin, Package, Star, Truck } from "lucide-react";
+import { ArrowLeft, CheckCircle2, CreditCard, Gift, MapPin, Package, RotateCcw, Star, Truck } from "lucide-react";
 import { orderService } from "@/services/order.service";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Skeleton } from "@/components/ui/Skeleton";
@@ -12,6 +12,7 @@ import { ReviewDialog } from "@/components/review/ReviewDialog";
 import { useProductReviews } from "@/hooks/useReviews";
 import { useAppSelector } from "@/hooks/useAppDispatch";
 import { Order, OrderItem, Review } from "@/types";
+import { useMyRewards } from "@/hooks/useRewards";
 
 const fmt = (v?: string | null) =>
   v
@@ -65,6 +66,7 @@ function OrderItemReviewAction({ order, item }: { order: Order; item: OrderItem 
 
 export default function OrderDetailPage() {
   const { id = "" } = useParams();
+  const { data: reward } = useMyRewards();
 
   const { data: order, isLoading, isError } = useQuery({
     queryKey: ["order-detail", id],
@@ -86,6 +88,10 @@ export default function OrderDetailPage() {
     return <EmptyState title="Order not found" description="Please check your order list" />;
   }
 
+  const canShowRewardCta =
+    (reward?.spinBalance ?? 0) > 0 &&
+    !(order.paymentMethod === "banking" && order.paymentStatus !== "paid");
+
   return (
     <div className="space-y-4">
       <Link to="/my-account/orders" className="inline-flex items-center gap-1 text-sm text-amber-600 hover:underline">
@@ -105,6 +111,37 @@ export default function OrderDetailPage() {
           </div>
         </div>
       </div>
+
+      {canShowRewardCta && (
+        <div className="relative overflow-hidden rounded-[1.75rem] bg-gradient-to-br from-orange-500 via-amber-400 to-yellow-300 p-[1px] shadow-[0_24px_70px_-34px_rgba(249,115,22,0.85)]">
+          <div className="relative overflow-hidden rounded-[calc(1.75rem-1px)] bg-white/90 p-5 dark:bg-gray-900/90">
+            <div className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-orange-300/30 blur-3xl" />
+            <div className="relative flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex items-start gap-3">
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-orange-100 text-orange-600 dark:bg-orange-900/30 dark:text-orange-300">
+                  <Gift size={22} />
+                </div>
+                <div>
+                  <h2 className="text-lg font-black text-gray-950 dark:text-white">
+                    Bạn đang có {reward?.spinBalance ?? 0} lượt quay may mắn!
+                  </h2>
+                  <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                    Dùng lượt quay để nhận xu hoặc coupon cho order tiếp theo.
+                  </p>
+                </div>
+              </div>
+              <div className="flex gap-2">
+                <Link to="/rewards/wheel">
+                  <Button><RotateCcw size={16} /> Quay ngay</Button>
+                </Link>
+                <Link to="/my-account/orders">
+                  <Button variant="outline">Để sau</Button>
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="grid gap-4 lg:grid-cols-3">
         <div className="space-y-4 lg:col-span-2">
@@ -178,3 +215,5 @@ export default function OrderDetailPage() {
     </div>
   );
 }
+
+

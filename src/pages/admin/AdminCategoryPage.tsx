@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+﻿import { useEffect, useMemo, useState } from "react";
 import { FolderOpen, Plus, RefreshCw } from "lucide-react";
 import { useSearchParams } from "react-router-dom";
 import {
@@ -207,15 +207,15 @@ export default function AdminCategoryPage() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-            Categories
+            Quản lý Product
           </h1>
           <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-            Category-first product management workspace for large catalogs.
+            Không gian quản lý product theo danh mục, phù hợp catalog lớn.
           </p>
           <div className="mt-3 flex flex-wrap gap-2">
-            <Badge variant="info">Category-first workflow</Badge>
+            <Badge variant="info">Quy trình theo danh mục</Badge>
             <Badge variant="outline">
-              {flatList.length} categories cached via React Query
+              {flatList.length} danh mục được cache qua React Query
             </Badge>
           </div>
         </div>
@@ -230,13 +230,13 @@ export default function AdminCategoryPage() {
                 size={15}
                 className={isFetchingProducts ? "animate-spin" : ""}
               />
-              Refresh products
+              Làm mới product
             </Button>
             <Button
               variant="outline"
               onClick={() => openCreate(getCategoryId(selectedCategory))}
             >
-              <Plus size={16} /> Add child category
+              <Plus size={16} /> Thêm danh mục con
             </Button>
           </div>
         )}
@@ -277,11 +277,11 @@ export default function AdminCategoryPage() {
                         {selectedCategory.name}
                       </h2>
                       <Badge variant="outline">
-                        Level {selectedCategory.level}
+                        Cấp {selectedCategory.level}
                       </Badge>
                     </div>
                     <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                      Path: /{selectedCategory.path}
+                      Đường dẫn: /{selectedCategory.path}
                     </p>
                   </div>
                 </div>
@@ -321,7 +321,7 @@ export default function AdminCategoryPage() {
               <div className="max-w-md space-y-3">
                 <p className="text-5xl">🌿</p>
                 <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
-                  No category available yet
+                  Chưa có danh mục nào
                 </h2>
                 <p className="text-sm text-gray-500 dark:text-gray-400">
                   Tạo category đầu tiên để bắt đầu quản lý product theo từng tab
@@ -339,7 +339,7 @@ export default function AdminCategoryPage() {
           setFormOpen(false);
           setEditTarget(null);
         }}
-        title={editTarget ? `Edit: ${editTarget.name}` : "New Category"}
+        title={editTarget ? `Chỉnh sửa: ${editTarget.name}` : "Tạo category"}
         size="md"
       >
         <CategoryForm
@@ -358,19 +358,19 @@ export default function AdminCategoryPage() {
       <Modal
         isOpen={!!deleteTarget}
         onClose={() => setDeleteTarget(null)}
-        title="Delete Category"
+        title="Xóa category"
         size="sm"
       >
         <div className="space-y-4">
           <p className="text-sm text-gray-600 dark:text-gray-400">
-            Delete{" "}
+            Xóa{" "}
             <span className="font-semibold text-gray-900 dark:text-white">
               {deleteTarget?.name}
             </span>
             ?{" "}
             {(deleteTarget?.children?.length ?? 0) > 0 && (
               <span className="text-amber-600">
-                This category has {deleteTarget?.children?.length} child(ren).
+                Category này có {deleteTarget?.children?.length} danh mục con.
               </span>
             )}
           </p>
@@ -381,14 +381,14 @@ export default function AdminCategoryPage() {
               loading={deleteMutation.isPending}
               className="flex-1"
             >
-              Delete
+              Xóa
             </Button>
             <Button
               variant="outline"
               onClick={() => setDeleteTarget(null)}
               className="flex-1"
             >
-              Cancel
+              Hủy
             </Button>
           </div>
         </div>
@@ -397,16 +397,16 @@ export default function AdminCategoryPage() {
       <Modal
         isOpen={!!deleteProductTarget}
         onClose={() => setDeleteProductTarget(null)}
-        title="Delete Product"
+        title="Xóa Product"
         size="sm"
       >
         <div className="space-y-4">
           <p className="text-sm text-gray-600 dark:text-gray-400">
-            Delete
+            Xóa
             <span className="mx-1 font-semibold text-gray-900 dark:text-white">
               {deleteProductTarget?.name}
             </span>
-            from this category? This action cannot be undone.
+            khỏi danh mục này? Thao tác này không thể hoàn tác.
           </p>
           <div className="flex gap-3">
             <Button
@@ -415,14 +415,14 @@ export default function AdminCategoryPage() {
               loading={deleteProductMutation.isPending}
               className="flex-1"
             >
-              Delete
+              Xóa
             </Button>
             <Button
               variant="outline"
               onClick={() => setDeleteProductTarget(null)}
               className="flex-1"
             >
-              Cancel
+              Hủy
             </Button>
           </div>
         </div>
@@ -430,3 +430,5 @@ export default function AdminCategoryPage() {
     </div>
   );
 }
+
+

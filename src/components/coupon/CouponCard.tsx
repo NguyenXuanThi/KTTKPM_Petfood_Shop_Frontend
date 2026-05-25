@@ -1,4 +1,4 @@
-import { Ticket } from "lucide-react";
+﻿import { Ticket } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { CouponUserBadge } from "./CouponStatusBadge";
 import { UserCoupon } from "@/types/coupon";
@@ -71,7 +71,7 @@ export function CouponCard({ userCoupon, onApply }: CouponCardProps) {
           <div className="space-y-1 text-xs text-gray-500 dark:text-gray-400">
             <p>
               <span className="font-medium text-gray-700 dark:text-gray-300">
-                Discount:
+                Mức giảm:
               </span>{" "}
               <span className="font-semibold text-amber-600 dark:text-amber-400">
                 {formatDiscount(coupon)}
@@ -80,14 +80,14 @@ export function CouponCard({ userCoupon, onApply }: CouponCardProps) {
             {coupon.minOrderAmount > 0 && (
               <p>
                 <span className="font-medium text-gray-700 dark:text-gray-300">
-                  Min order:
+                  Order tối thiểu:
                 </span>{" "}
                 {coupon.minOrderAmount.toLocaleString("vi-VN")}đ
               </p>
             )}
             <p>
               <span className="font-medium text-gray-700 dark:text-gray-300">
-                Expires:
+                Hết hạn:
               </span>{" "}
               {formatDate(coupon.expiresAt)}
             </p>
@@ -106,12 +106,14 @@ export function CouponCard({ userCoupon, onApply }: CouponCardProps) {
                 ? "bg-amber-500 text-white hover:bg-amber-600 active:scale-95"
                 : "cursor-not-allowed bg-gray-100 text-gray-400 dark:bg-gray-800 dark:text-gray-500"
             )}
-            title={!onApply ? "Available at checkout" : undefined}
+            title={!onApply ? "Có thể dùng ở checkout" : undefined}
           >
-            {isUsed ? "Used" : "Apply"}
+            {isUsed ? "Đã dùng" : "Áp dụng"}
           </button>
         </div>
       </div>
     </div>
   );
 }
+
+

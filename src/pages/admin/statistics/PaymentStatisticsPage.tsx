@@ -1,4 +1,4 @@
-import { CheckCircle2, Clock3, Hourglass, TimerOff, XCircle } from "lucide-react";
+﻿import { CheckCircle2, Clock3, Hourglass, TimerOff, XCircle } from "lucide-react";
 import { usePaymentStatistics } from "@/hooks/useStatistics";
 import { StatisticsCard } from "@/components/statistics/StatisticsCard";
 import { ChartCard } from "@/components/statistics/ChartCard";
@@ -14,23 +14,23 @@ export default function PaymentStatisticsPage() {
   const data = query.data;
 
   return (
-    <StatisticsPageShell title="Thống kê payment" description="Theo dõi trạng thái thanh toán và các giao dịch mới nhất." filter={filter} setFilter={setFilter}>
+    <StatisticsPageShell title="Thống kê payment" description="Theo dõi trạng thái payment và các giao dịch mới nhất." filter={filter} setFilter={setFilter}>
       {query.isLoading && <StatisticsLoading />}
       {query.isError && <StatisticsError onRetry={() => query.refetch()} />}
       {data && (
         <div className="space-y-6">
           <div className="grid gap-4 md:grid-cols-5">
-            <StatisticsCard label="Paid Payments" value={data.summary.paidPayments} icon={<CheckCircle2 />} />
-            <StatisticsCard label="Waiting Verify" value={data.summary.waitingVerifyPayments} icon={<Hourglass />} />
-            <StatisticsCard label="Pending" value={data.summary.pendingPayments} icon={<Clock3 />} />
-            <StatisticsCard label="Failed" value={data.summary.failedPayments} icon={<XCircle />} />
-            <StatisticsCard label="Expired" value={data.summary.expiredPayments} icon={<TimerOff />} />
+            <StatisticsCard label="Payment đã paid" value={data.summary.paidPayments} icon={<CheckCircle2 />} />
+            <StatisticsCard label="Chờ xác minh" value={data.summary.waitingVerifyPayments} icon={<Hourglass />} />
+            <StatisticsCard label="Đang chờ" value={data.summary.pendingPayments} icon={<Clock3 />} />
+            <StatisticsCard label="Thất bại" value={data.summary.failedPayments} icon={<XCircle />} />
+            <StatisticsCard label="Hết hạn" value={data.summary.expiredPayments} icon={<TimerOff />} />
           </div>
-          <ChartCard title="Payment Status">
+          <ChartCard title="Trạng thái payment">
             <PaymentStatusChart data={data.chart} />
           </ChartCard>
           <StatisticsTable
-            columns={["Payment", "Order", "Method", "Status", "Amount", "Created At"]}
+            columns={["Payment", "Order", "Phương thức", "Trạng thái", "Số tiền", "Ngày tạo"]}
             rows={data.recentPayments}
             renderRow={(row) => (
               <tr key={row.paymentId}>
@@ -48,3 +48,5 @@ export default function PaymentStatisticsPage() {
     </StatisticsPageShell>
   );
 }
+
+

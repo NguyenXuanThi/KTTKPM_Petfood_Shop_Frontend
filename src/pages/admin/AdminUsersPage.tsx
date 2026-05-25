@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+﻿import { useEffect, useState } from "react";
 import {
   Mail,
   RefreshCw,
@@ -24,9 +24,9 @@ import { User } from "@/types";
 type StatusFilter = "all" | "active" | "inactive";
 
 const statusFilters: Array<{ label: string; value: StatusFilter }> = [
-  { label: "All", value: "all" },
-  { label: "Active", value: "active" },
-  { label: "Inactive", value: "inactive" },
+  { label: "Tất cả", value: "all" },
+  { label: "Đang hoạt động", value: "active" },
+  { label: "Không hoạt động", value: "inactive" },
 ];
 
 function UserTableSkeleton() {
@@ -98,10 +98,9 @@ export default function AdminUsersPage() {
             <Users size={22} />
           </div>
           <div>
-            <h1 className="text-2xl font-bold">Users</h1>
+            <h1 className="text-2xl font-bold">Quản lý User</h1>
             <p className="text-sm text-gray-500 dark:text-gray-400">
-              Manage account activation, roles, and login health from real
-              user-service data.
+              Quản lý trạng thái tài khoản, role và lịch sử đăng nhập từ dữ liệu user-service.
             </p>
           </div>
         </div>
@@ -109,7 +108,7 @@ export default function AdminUsersPage() {
         <div className="flex flex-col gap-3 sm:flex-row">
           <div className="min-w-0 sm:w-80">
             <Input
-              placeholder="Search by email..."
+              placeholder="Tìm theo email..."
               value={searchInput}
               onChange={(event) => setSearchInput(event.target.value)}
               leftIcon={<Search size={14} />}
@@ -121,7 +120,7 @@ export default function AdminUsersPage() {
             disabled={isFetching}
           >
             <RefreshCw size={14} className={isFetching ? "animate-spin" : ""} />
-            Refresh
+            Làm mới
           </Button>
         </div>
       </div>
@@ -129,7 +128,7 @@ export default function AdminUsersPage() {
       <div className="flex flex-col gap-3 rounded-3xl border border-gray-100 bg-white p-4 shadow-sm dark:border-gray-800 dark:bg-gray-900 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-2 text-sm font-medium text-gray-600 dark:text-gray-300">
           <SlidersHorizontal size={16} />
-          Status filter
+          Lọc trạng thái
         </div>
         <div className="flex flex-wrap gap-2">
           {statusFilters.map((filter) => (
@@ -150,10 +149,10 @@ export default function AdminUsersPage() {
       </div>
 
       <div className="flex flex-wrap gap-2">
-        <Badge variant="info">Live data from user-service</Badge>
-        <Badge variant="outline">{total} matching users</Badge>
+        <Badge variant="info">Dữ liệu trực tiếp từ user-service</Badge>
+        <Badge variant="outline">{total} user phù hợp</Badge>
         {isFetching && !isLoading && (
-          <Badge variant="warning">Refreshing</Badge>
+          <Badge variant="warning">Đang làm mới</Badge>
         )}
       </div>
 
@@ -164,11 +163,11 @@ export default function AdminUsersPage() {
           <div className="p-8">
             <EmptyState
               icon={<Users size={28} />}
-              title="Unable to load users"
-              description="Please check the gateway and user-service connection, then try again."
+              title="Không thể tải user"
+              description="Kiểm tra kết nối gateway và user-service rồi thử lại."
               action={
                 <Button onClick={() => refetch()}>
-                  <RefreshCw size={14} /> Retry
+                  <RefreshCw size={14} /> Thử lại
                 </Button>
               }
             />
@@ -179,13 +178,13 @@ export default function AdminUsersPage() {
               icon={<Mail size={28} />}
               title={
                 debouncedSearch
-                  ? "No users matched your search"
-                  : "No users found"
+                  ? "Không có user khớp với tìm kiếm"
+                  : "Không tìm thấy user"
               }
               description={
                 debouncedSearch
-                  ? "Try a different email keyword or clear the search."
-                  : "There are no user accounts in this filter yet."
+                  ? "Thử từ khóa email khác hoặc xóa tìm kiếm."
+                  : "Chưa có tài khoản user nào trong bộ lọc này."
               }
             />
           </div>
@@ -226,3 +225,7 @@ export default function AdminUsersPage() {
     </div>
   );
 }
+
+
+
+

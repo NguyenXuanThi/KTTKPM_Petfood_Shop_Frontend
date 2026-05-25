@@ -1,4 +1,4 @@
-import { ShieldCheck } from "lucide-react";
+﻿import { ShieldCheck } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { StatusBadge } from "@/components/admin/StatusBadge";
@@ -15,7 +15,7 @@ interface UserTableProps {
 const getUserId = (user: User) => user.id ?? user._id ?? "";
 
 const formatDateTime = (value?: string | null) => {
-  if (!value) return "Never";
+  if (!value) return "Chưa từng";
   return new Intl.DateTimeFormat("vi-VN", {
     dateStyle: "medium",
     timeStyle: "short",
@@ -35,13 +35,13 @@ export function UserTable({
         <thead>
           <tr className="border-b border-gray-100 bg-gray-50 dark:border-gray-800 dark:bg-gray-800/50">
             {[
-              "Full Name",
+              "Họ tên",
               "Email",
               "Role",
-              "Status",
-              "Inactive Reason",
-              "Last Login",
-              "Actions",
+              "Trạng thái",
+              "Lý do vô hiệu hóa",
+              "Lần đăng nhập cuối",
+              "Thao tác",
             ].map((heading) => (
               <th
                 key={heading}
@@ -101,7 +101,7 @@ export function UserTable({
                 <td className="max-w-[260px] px-4 py-3 text-sm text-gray-500 dark:text-gray-400">
                   {isInactive ? (
                     <span className="line-clamp-2">
-                      {user.inactiveReason || "No reason provided"}
+                      {user.inactiveReason || "Chưa có lý do"}
                     </span>
                   ) : (
                     <span className="text-gray-400">-</span>
@@ -120,7 +120,7 @@ export function UserTable({
                         disabled={!userId}
                         onClick={() => onActivate(user)}
                       >
-                        Activate
+                        Kích hoạt
                       </Button>
                     ) : (
                       <Button
@@ -130,10 +130,10 @@ export function UserTable({
                         disabled={isSelf || !userId}
                         onClick={() => onDeactivate(user)}
                       >
-                        Deactivate
+                        Vô hiệu hóa
                       </Button>
                     )}
-                    {isSelf && <Badge variant="outline">Current admin</Badge>}
+                    {isSelf && <Badge variant="outline">Admin hiện tại</Badge>}
                   </div>
                 </td>
               </tr>
@@ -144,3 +144,8 @@ export function UserTable({
     </div>
   );
 }
+
+
+
+
+

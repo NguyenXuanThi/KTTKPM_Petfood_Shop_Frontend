@@ -1,4 +1,4 @@
-import { BadgePercent, Tag } from "lucide-react";
+﻿import { BadgePercent, Tag } from "lucide-react";
 import { useCouponStatistics } from "@/hooks/useStatistics";
 import { StatisticsCard } from "@/components/statistics/StatisticsCard";
 import { ChartCard } from "@/components/statistics/ChartCard";
@@ -7,6 +7,7 @@ import { StatisticsEmptyState } from "@/components/statistics/EmptyState";
 import { StatisticsError, StatisticsLoading } from "@/components/statistics/StatisticsState";
 import { CouponBarChart } from "@/components/statistics/charts/CouponBarChart";
 import { formatPrice } from "@/lib/utils";
+import { formatDate } from "@/lib/couponUtils";
 import { StatisticsPageShell, useStatisticsFilter } from "./helpers";
 
 export default function CouponStatisticsPage() {
@@ -21,19 +22,19 @@ export default function CouponStatisticsPage() {
       {data && (
         <div className="space-y-6">
           <div className="grid gap-4 md:grid-cols-3">
-            <StatisticsCard label="Coupons Used" value={data.summary.couponsUsed} icon={<Tag />} />
-            <StatisticsCard label="Total Discount Amount" value={formatPrice(data.summary.totalDiscountAmount)} icon={<BadgePercent />} />
-            <StatisticsCard label="Most Used Coupon" value={data.summary.mostUsedCoupon || "-"} />
+            <StatisticsCard label="Coupon đã dùng" value={data.summary.couponsUsed} icon={<Tag />} />
+            <StatisticsCard label="Tổng số tiền giảm" value={formatPrice(data.summary.totalDiscountAmount)} icon={<BadgePercent />} />
+            <StatisticsCard label="Coupon dùng nhiều nhất" value={data.summary.mostUsedCoupon || "-"} />
           </div>
           {data.chart.length ? (
-            <ChartCard title="Top Used Coupons">
+            <ChartCard title="Coupon được dùng nhiều nhất">
               <CouponBarChart data={data.chart} />
             </ChartCard>
           ) : (
             <StatisticsEmptyState />
           )}
           <StatisticsTable
-            columns={["Code", "Scope", "Used Count", "Discount Amount", "Expiration", "Status"]}
+            columns={["Mã coupon", "Scope", "Số lượt dùng", "Số tiền giảm", "Hạn dùng", "Trạng thái"]}
             rows={data.table}
             renderRow={(row) => (
               <tr key={row.couponId}>
@@ -41,8 +42,8 @@ export default function CouponStatisticsPage() {
                 <td className="px-4 py-3">{row.scope}</td>
                 <td className="px-4 py-3">{row.usedCount}</td>
                 <td className="px-4 py-3">{formatPrice(row.totalDiscountAmount)}</td>
-                <td className="px-4 py-3">{new Date(row.expiresAt).toLocaleDateString("vi-VN")}</td>
-                <td className="px-4 py-3">{row.isActive ? "Active" : "Disabled"}</td>
+                <td className="px-4 py-3">{formatDate(row.expiresAt)}</td>
+                <td className="px-4 py-3">{row.isActive ? "Đang hoạt động" : "Vô hiệu hóa"}</td>
               </tr>
             )}
           />
@@ -51,3 +52,8 @@ export default function CouponStatisticsPage() {
     </StatisticsPageShell>
   );
 }
+
+
+
+
+
