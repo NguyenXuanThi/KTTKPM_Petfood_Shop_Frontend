@@ -72,7 +72,7 @@ export function Footer() {
               ].map((cat) => (
                 <li key={cat}>
                   <Link
-                    to={`/products?search=${encodeURIComponent(cat)}`}
+                    to={`/search?q=${encodeURIComponent(cat)}`}
                     className="text-sm text-gray-500 transition-colors hover:text-amber-500 dark:text-gray-400 dark:hover:text-amber-400"
                   >
                     {cat}

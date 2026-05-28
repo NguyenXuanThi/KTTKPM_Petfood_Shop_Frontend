@@ -1,5 +1,6 @@
 ﻿import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   ShoppingCart,
   Search,
@@ -18,7 +19,7 @@ import { useTranslation } from "react-i18next";
 import { useAuth } from "@/hooks/useAuth";
 import { useCart } from "@/hooks/useCart";
 import { useWishlistQuery } from "@/hooks/useWishlistApi";
-import { useDebounce } from "@/hooks/useDebounce";
+import { RECOMMENDATIONS_KEY } from "@/hooks/useRecommendations";
 import { cn } from "@/lib/utils";
 import { LanguageSwitcher } from "@/components/ui/LanguageSwitcher";
 import {
@@ -33,6 +34,7 @@ export function Navbar() {
   const { data: wishlistData } = useWishlistQuery();
   const wishlistCount = wishlistData?.total ?? 0;
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { t } = useTranslation();
 
   const [searchQuery, setSearchQuery] = useState("");
@@ -43,21 +45,25 @@ export function Navbar() {
     document.documentElement.classList.contains("dark"),
   );
 
-  const debouncedSearch = useDebounce(searchQuery, 400);
-
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 10);
     window.addEventListener("scroll", onScroll);
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  useEffect(() => {
-    if (debouncedSearch.trim()) {
-      navigate(
-        `/products?search=${encodeURIComponent(debouncedSearch.trim())}`,
-      );
-    }
-  }, [debouncedSearch, navigate]);
+  const submitSearch = (keyword: string) => {
+    const trimmed = keyword.trim();
+    if (!trimmed) return;
+    navigate(`/search?q=${encodeURIComponent(trimmed)}`);
+    queryClient.invalidateQueries({ queryKey: [RECOMMENDATIONS_KEY, "products"] });
+    setSearchQuery("");
+    setMenuOpen(false);
+  };
+
+  const handleSearchSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    submitSearch(searchQuery);
+  };
 
   const toggleDark = () => {
     const next = !dark;
@@ -89,19 +95,26 @@ export function Navbar() {
 
         {/* Search */}
         <div className="hidden max-w-xs flex-1 md:flex">
-          <div className="relative w-full">
+          <form onSubmit={handleSearchSubmit} className="relative w-full">
             <Search
               size={16}
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+              className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
             />
             <input
               type="text"
-              placeholder={t("pawmart.search.placeholder")}
+              placeholder="Tìm máy cho ăn tự động..."
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full rounded-xl border border-gray-200 bg-gray-50 py-2 pl-9 pr-4 text-sm text-gray-900 placeholder-gray-400 transition-all focus:border-amber-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-100 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100"
+              onChange={(event) => setSearchQuery(event.target.value)}
+              className="w-full rounded-xl border border-gray-200 bg-gray-50 py-2 pl-9 pr-14 text-sm text-gray-900 placeholder-gray-400 transition-all focus:border-amber-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-100 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100"
             />
-          </div>
+            <button
+              type="submit"
+              aria-label="Tìm kiếm"
+              className="absolute right-1.5 top-1/2 -translate-y-1/2 rounded-lg bg-amber-500 px-2.5 py-1.5 text-xs font-semibold text-white transition hover:bg-amber-600"
+            >
+              Tìm
+            </button>
+          </form>
         </div>
 
         {/* Actions */}
@@ -250,17 +263,26 @@ export function Navbar() {
             <div className="space-y-1 p-4">
               {/* Mobile search */}
               <div className="relative mb-3">
-                <Search
-                  size={16}
-                  className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-                />
-                <input
-                  type="text"
-                  placeholder={t("pawmart.search.placeholder")}
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full rounded-xl border border-gray-200 bg-gray-50 py-2 pl-9 pr-4 text-sm focus:border-amber-400 focus:outline-none dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100"
-                />
+                <form onSubmit={handleSearchSubmit} className="relative w-full">
+                  <Search
+                    size={16}
+                    className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+                  />
+                  <input
+                    type="text"
+                    placeholder="Tìm thức ăn cho mèo..."
+                    value={searchQuery}
+                    onChange={(event) => setSearchQuery(event.target.value)}
+                    className="w-full rounded-xl border border-gray-200 bg-gray-50 py-2 pl-9 pr-14 text-sm focus:border-amber-400 focus:outline-none dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100"
+                  />
+                  <button
+                    type="submit"
+                    aria-label="Tìm kiếm"
+                    className="absolute right-1.5 top-1/2 -translate-y-1/2 rounded-lg bg-amber-500 px-2.5 py-1.5 text-xs font-semibold text-white transition hover:bg-amber-600"
+                  >
+                    Tìm
+                  </button>
+                </form>
               </div>
 
               {/* Products link */}

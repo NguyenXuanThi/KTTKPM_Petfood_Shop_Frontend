@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useParams, Link } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   ShoppingCart,
   Heart,
@@ -20,14 +21,29 @@ import { Badge } from "@/components/ui/Badge";
 import { Rating } from "@/components/ui/Rating";
 import { ProductDetailSkeleton } from "@/components/ui/Skeleton";
 import { ReviewSection } from "@/components/review/ReviewSection";
+import { RECOMMENDATIONS_KEY } from "@/hooks/useRecommendations";
 
 export default function ProductDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { data: product, isLoading, error } = useProduct(id ?? "");
   const { addItem, getItemQuantity, updateQty, isInCart } = useCart();
   const { toggle, isWishlisted } = useWishlist();
   const [qty, setQty] = useState(1);
+
+  useEffect(() => {
+    if (!product?._id) return;
+    queryClient.invalidateQueries({
+      queryKey: [RECOMMENDATIONS_KEY, "products"],
+    });
+    const timer = window.setTimeout(() => {
+      queryClient.invalidateQueries({
+        queryKey: [RECOMMENDATIONS_KEY, "products"],
+      });
+    }, 1200);
+    return () => window.clearTimeout(timer);
+  }, [product?._id, queryClient]);
 
   if (isLoading) {
     return (

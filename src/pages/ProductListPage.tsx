@@ -1,15 +1,15 @@
-import { useState, useEffect } from "react";
-import { useSearchParams } from "react-router-dom";
-import { SlidersHorizontal, X } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Link, useLocation, useSearchParams } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
+import { ArrowRight, Search, SlidersHorizontal, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useProducts } from "@/hooks/useProducts";
-import { useDebounce } from "@/hooks/useDebounce";
 import { useCategoryList } from "@/hooks/useCategories";
 import { ProductGrid } from "@/components/product/ProductGrid";
 import { FilterSidebar } from "@/components/product/FilterSidebar";
 import { Pagination } from "@/components/ui/Pagination";
-import { Input } from "@/components/ui/Input";
-import { Search } from "lucide-react";
+import { RECOMMENDATIONS_KEY } from "@/hooks/useRecommendations";
+import { Button } from "@/components/ui/Button";
 
 interface FilterState {
   categoryId: string;
@@ -20,9 +20,13 @@ interface FilterState {
 
 export default function ProductListPage() {
   const [searchParams, setSearchParams] = useSearchParams();
+  const location = useLocation();
+  const queryClient = useQueryClient();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { t } = useTranslation();
-  const searchFromUrl = searchParams.get("search") ?? "";
+
+  const searchFromUrl =
+    searchParams.get("q") ?? searchParams.get("search") ?? "";
   const categoryIdFromUrl = searchParams.get("categoryId") ?? "";
   const [searchInput, setSearchInput] = useState(searchFromUrl);
   const [page, setPage] = useState(1);
@@ -33,8 +37,6 @@ export default function ProductListPage() {
     sortBy: "",
   });
 
-  const debouncedSearch = useDebounce(searchInput, 400);
-
   const { data: catData } = useCategoryList({ limit: 100, isActive: true });
   const categories = catData?.items ?? [];
 
@@ -42,16 +44,30 @@ export default function ProductListPage() {
     ":",
   ) as ["createdAt" | "price" | "name", "asc" | "desc"];
 
-  // Current product-service supports: keyword, categoryId, page, limit, sortBy, sortOrder.
-  // Price filters remain UI-only until backend exposes those query params.
   const { data, isLoading } = useProducts({
     page,
     limit: 12,
-    keyword: debouncedSearch || undefined,
+    keyword: searchFromUrl || undefined,
     categoryId: filters.categoryId || undefined,
     sortBy,
     sortOrder,
   });
+
+  useEffect(() => {
+    if (!searchFromUrl || isLoading) return;
+
+    queryClient.invalidateQueries({
+      queryKey: [RECOMMENDATIONS_KEY, "products"],
+    });
+
+    const timer = window.setTimeout(() => {
+      queryClient.invalidateQueries({
+        queryKey: [RECOMMENDATIONS_KEY, "products"],
+      });
+    }, 1200);
+
+    return () => window.clearTimeout(timer);
+  }, [searchFromUrl, isLoading, queryClient]);
 
   useEffect(() => {
     setSearchInput((prev) => (prev === searchFromUrl ? prev : searchFromUrl));
@@ -64,14 +80,34 @@ export default function ProductListPage() {
 
   useEffect(() => {
     setPage(1);
-  }, [debouncedSearch, filters]);
+  }, [searchFromUrl, filters]);
 
   useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [location.search]);
+
+  const submitSearch = (keyword: string) => {
+    const trimmed = keyword.trim();
     const params: Record<string, string> = {};
-    if (debouncedSearch) params.search = debouncedSearch;
+    if (trimmed) params.q = trimmed;
     if (filters.categoryId) params.categoryId = filters.categoryId;
-    setSearchParams(params, { replace: true });
-  }, [debouncedSearch, filters.categoryId, setSearchParams]);
+    setSearchParams(params);
+    queryClient.invalidateQueries({
+      queryKey: [RECOMMENDATIONS_KEY, "products"],
+    });
+  };
+
+  const handleSearchSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    submitSearch(searchInput);
+  };
+
+  const clearSearch = () => {
+    setSearchInput("");
+    const params: Record<string, string> = {};
+    if (filters.categoryId) params.categoryId = filters.categoryId;
+    setSearchParams(params);
+  };
 
   const products = data?.items ?? [];
   const totalPages = data?.meta?.totalPages ?? 1;
@@ -79,11 +115,12 @@ export default function ProductListPage() {
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 md:px-6">
-      {/* Header */}
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white md:text-3xl">
-            {t("pawmart.products.title")}
+            {searchFromUrl
+              ? `Kết quả tìm kiếm "${searchFromUrl}"`
+              : t("pawmart.products.title")}
           </h1>
           {!isLoading && (
             <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
@@ -91,24 +128,43 @@ export default function ProductListPage() {
             </p>
           )}
         </div>
+
         <div className="flex items-center gap-3">
-          <div className="flex-1 sm:w-64">
-            <Input
-              placeholder={t("pawmart.products.searchPlaceholder")}
-              value={searchInput}
-              onChange={(e) => setSearchInput(e.target.value)}
-              leftIcon={<Search size={14} />}
-              rightIcon={
-                searchInput ? (
-                  <button onClick={() => setSearchInput("")}>
-                    <X size={14} />
-                  </button>
-                ) : undefined
-              }
-            />
+          <div className="flex-1 sm:w-72">
+            <form onSubmit={handleSearchSubmit} className="relative w-full">
+              <Search
+                size={16}
+                className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+              />
+              <input
+                type="text"
+                placeholder="Tìm đồ chơi thú cưng..."
+                value={searchInput}
+                onChange={(event) => setSearchInput(event.target.value)}
+                className="w-full rounded-xl border border-gray-200 bg-white py-2.5 pl-10 pr-20 text-sm text-gray-900 placeholder-gray-400 transition-all focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-100 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100"
+              />
+              {searchInput && (
+                <button
+                  type="button"
+                  onClick={clearSearch}
+                  aria-label="Xóa từ khóa"
+                  className="absolute right-12 top-1/2 -translate-y-1/2 rounded-full p-1 text-gray-400 transition hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-gray-800"
+                >
+                  <X size={14} />
+                </button>
+              )}
+              <button
+                type="submit"
+                aria-label="Tìm kiếm"
+                className="absolute right-1.5 top-1/2 -translate-y-1/2 rounded-lg bg-amber-500 px-2.5 py-1.5 text-xs font-semibold text-white transition hover:bg-amber-600"
+              >
+                Tìm
+              </button>
+            </form>
           </div>
+
           <button
-            onClick={() => setSidebarOpen((v) => !v)}
+            onClick={() => setSidebarOpen((value) => !value)}
             className="flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 dark:hover:bg-gray-800 lg:hidden"
           >
             <SlidersHorizontal size={16} />
@@ -118,7 +174,6 @@ export default function ProductListPage() {
       </div>
 
       <div className="flex gap-6">
-        {/* Sidebar desktop */}
         <aside className="hidden w-64 shrink-0 lg:block">
           <FilterSidebar
             filters={filters}
@@ -127,7 +182,6 @@ export default function ProductListPage() {
           />
         </aside>
 
-        {/* Mobile sidebar overlay */}
         {sidebarOpen && (
           <div className="fixed inset-0 z-50 lg:hidden">
             <div
@@ -137,8 +191,8 @@ export default function ProductListPage() {
             <div className="absolute right-0 top-0 h-full w-80 overflow-y-auto bg-white p-6 shadow-xl dark:bg-gray-950">
               <FilterSidebar
                 filters={filters}
-                onFilterChange={(f) => {
-                  setFilters(f);
+                onFilterChange={(nextFilters) => {
+                  setFilters(nextFilters);
                   setSidebarOpen(false);
                 }}
                 categories={categories}
@@ -147,13 +201,36 @@ export default function ProductListPage() {
           </div>
         )}
 
-        {/* Main content */}
         <div className="flex-1 space-y-6">
+          {!searchFromUrl && !filters.categoryId && (
+            <div className="rounded-3xl border border-amber-100 bg-gradient-to-br from-amber-50 to-white p-5 dark:border-amber-900/40 dark:from-amber-950/20 dark:to-gray-950">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <p className="text-sm font-semibold text-amber-600">
+                    Khám phá hôm nay
+                  </p>
+                  <h2 className="text-xl font-bold text-gray-900 dark:text-white">
+                    Product mới và được quan tâm
+                  </h2>
+                  <p className="mt-1 text-sm text-gray-500">
+                    Nhập từ khóa rồi nhấn Enter để tìm kiếm chính xác hơn.
+                  </p>
+                </div>
+                <Link to="/products">
+                  <Button variant="outline" size="sm">
+                    Xem tất cả <ArrowRight size={14} />
+                  </Button>
+                </Link>
+              </div>
+            </div>
+          )}
+
           <ProductGrid
             products={products}
             isLoading={isLoading}
             skeletonCount={12}
           />
+
           {!isLoading && totalPages > 1 && (
             <Pagination
               page={page}

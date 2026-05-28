@@ -1,6 +1,19 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
 
 const BASE_URL = "http://localhost:3000/api";
+const SESSION_ID_KEY = "petfood_session_id";
+
+export const getPetfoodSessionId = () => {
+  let sessionId = localStorage.getItem(SESSION_ID_KEY);
+  if (!sessionId) {
+    sessionId =
+      typeof crypto !== "undefined" && "randomUUID" in crypto
+        ? crypto.randomUUID()
+        : `guest_${Date.now()}_${Math.random().toString(16).slice(2)}`;
+    localStorage.setItem(SESSION_ID_KEY, sessionId);
+  }
+  return sessionId;
+};
 
 export const apiClient = axios.create({
   baseURL: BASE_URL,
@@ -13,6 +26,9 @@ apiClient.interceptors.request.use(
     const token = localStorage.getItem("accessToken");
     if (token && config.headers) {
       config.headers.Authorization = `Bearer ${token}`;
+    }
+    if (config.headers) {
+      config.headers["x-session-id"] = getPetfoodSessionId();
     }
     return config;
   },

@@ -6,6 +6,7 @@ import { useProducts } from "@/hooks/useProducts";
 import { ProductGrid } from "@/components/product/ProductGrid";
 import { Button } from "@/components/ui/Button";
 import { HomeRewardSection } from "@/components/rewards/HomeRewardSection";
+import { RecommendationSection } from "@/components/recommendations/RecommendationSection";
 
 export default function HomePage() {
   const { t } = useTranslation();
@@ -51,7 +52,7 @@ export default function HomePage() {
               <p className="max-w-md text-lg text-gray-600 dark:text-gray-400">{t("pawmart.hero.subtitle")}</p>
               <div className="flex flex-wrap gap-3">
                 <Link to="/products"><Button size="lg">{t("pawmart.hero.shopNow")} <ArrowRight size={16} /></Button></Link>
-                <Link to="/products?search=featured"><Button size="lg" variant="outline">{t("pawmart.hero.browseCategories")}</Button></Link>
+                <Link to="/search?q=featured"><Button size="lg" variant="outline">{t("pawmart.hero.browseCategories")}</Button></Link>
               </div>
               <div className="flex items-center gap-6 pt-2">
                 <div className="text-center"><div className="text-2xl font-bold text-gray-900 dark:text-white">500+</div><div className="text-xs text-gray-500">{t("pawmart.hero.products")}</div></div>
@@ -91,7 +92,7 @@ export default function HomePage() {
         <div className="grid grid-cols-3 gap-4 sm:grid-cols-6">
           {HERO_CATEGORIES.map((cat, i) => (
             <motion.div key={cat.label} initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: i * 0.08 }}>
-              <Link to={`/products?search=${encodeURIComponent(cat.label)}`} className={`flex flex-col items-center gap-2 rounded-2xl border p-4 transition-all hover:-translate-y-1 hover:shadow-md ${cat.color} ${cat.border}`}>
+              <Link to={`/search?q=${encodeURIComponent(cat.label)}`} className={`flex flex-col items-center gap-2 rounded-2xl border p-4 transition-all hover:-translate-y-1 hover:shadow-md ${cat.color} ${cat.border}`}>
                 <span className="text-3xl">{cat.emoji}</span>
                 <span className="text-xs font-medium text-gray-700 dark:text-gray-300">{cat.label}</span>
               </Link>
@@ -112,6 +113,8 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      <RecommendationSection />
 
       <section className="mx-auto max-w-7xl px-4 md:px-6">
         <div className="mb-8 flex items-center justify-between">

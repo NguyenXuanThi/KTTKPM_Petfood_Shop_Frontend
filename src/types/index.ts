@@ -194,6 +194,19 @@ export interface ProductListResponse {
   meta: ProductListMeta;
 }
 
+export type RecommendationSource = "viewed" | "searched" | "best_seller";
+
+export interface ProductRecommendationResponse {
+  success?: boolean;
+  source: RecommendationSource;
+  context?: {
+    productId?: string | null;
+    keyword?: string | null;
+  } | null;
+  updatedAt?: string | null;
+  products: Product[];
+}
+
 export interface CartItem {
   productId: string;
   name: string;

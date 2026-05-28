@@ -142,6 +142,14 @@ export const router = createBrowserRouter([
         ),
       },
       {
+        path: "search",
+        element: (
+          <S>
+            <ProductListPage />
+          </S>
+        ),
+      },
+      {
         path: "products/:id",
         element: (
           <S>
