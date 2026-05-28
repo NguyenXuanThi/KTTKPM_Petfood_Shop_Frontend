@@ -1,19 +1,28 @@
 ﻿import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { reviewService } from "@/services/review.service";
-import { AdminReviewListParams, ReviewPayload } from "@/types";
+import {
+  AdminReviewListParams,
+  ProductReviewsParams,
+  ReviewPayload,
+} from "@/types";
 import { PRODUCTS_KEY } from "./useProducts";
 
 export const PRODUCT_REVIEWS_KEY = "reviews";
 export const ADMIN_REVIEWS_KEY = "admin-reviews";
 
-const getErrorMessage = (error: { response?: { data?: { message?: string } } }, fallback: string) =>
-  error?.response?.data?.message ?? fallback;
+const getErrorMessage = (
+  error: { response?: { data?: { message?: string } } },
+  fallback: string,
+) => error?.response?.data?.message ?? fallback;
 
-export function useProductReviews(productId: string) {
+export function useProductReviews(
+  productId: string,
+  params?: ProductReviewsParams,
+) {
   return useQuery({
-    queryKey: [PRODUCT_REVIEWS_KEY, productId],
-    queryFn: () => reviewService.getProductReviews(productId),
+    queryKey: [PRODUCT_REVIEWS_KEY, productId, params],
+    queryFn: () => reviewService.getProductReviews(productId, params),
     enabled: !!productId,
   });
 }
@@ -32,9 +41,15 @@ export function useCreateReview() {
   return useMutation({
     mutationFn: (payload: ReviewPayload) => reviewService.createReview(payload),
     onSuccess: (review) => {
-      queryClient.invalidateQueries({ queryKey: [PRODUCT_REVIEWS_KEY, review.productId] });
-      queryClient.invalidateQueries({ queryKey: [PRODUCTS_KEY, review.productId] });
-      queryClient.invalidateQueries({ queryKey: ["order-detail", review.orderId] });
+      queryClient.invalidateQueries({
+        queryKey: [PRODUCT_REVIEWS_KEY, review.productId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [PRODUCTS_KEY, review.productId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["order-detail", review.orderId],
+      });
       queryClient.invalidateQueries({ queryKey: [ADMIN_REVIEWS_KEY] });
       toast.success("Review submitted successfully.");
     },
@@ -48,11 +63,20 @@ export function useUpdateReview() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ reviewId, payload }: { reviewId: string; payload: Partial<ReviewPayload> }) =>
-      reviewService.updateReview(reviewId, payload),
+    mutationFn: ({
+      reviewId,
+      payload,
+    }: {
+      reviewId: string;
+      payload: Partial<ReviewPayload>;
+    }) => reviewService.updateReview(reviewId, payload),
     onSuccess: (review) => {
-      queryClient.invalidateQueries({ queryKey: [PRODUCT_REVIEWS_KEY, review.productId] });
-      queryClient.invalidateQueries({ queryKey: [PRODUCTS_KEY, review.productId] });
+      queryClient.invalidateQueries({
+        queryKey: [PRODUCT_REVIEWS_KEY, review.productId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [PRODUCTS_KEY, review.productId],
+      });
       queryClient.invalidateQueries({ queryKey: [ADMIN_REVIEWS_KEY] });
       toast.success("Review updated successfully.");
     },
@@ -69,7 +93,9 @@ export function useDeleteReview(productId?: string) {
     mutationFn: (reviewId: string) => reviewService.deleteReview(reviewId),
     onSuccess: () => {
       if (productId) {
-        queryClient.invalidateQueries({ queryKey: [PRODUCT_REVIEWS_KEY, productId] });
+        queryClient.invalidateQueries({
+          queryKey: [PRODUCT_REVIEWS_KEY, productId],
+        });
         queryClient.invalidateQueries({ queryKey: [PRODUCTS_KEY, productId] });
       } else {
         queryClient.invalidateQueries({ queryKey: [PRODUCT_REVIEWS_KEY] });
@@ -87,10 +113,15 @@ export function useHideReview() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ reviewId, reason }: { reviewId: string; reason: string }) => reviewService.hideReview(reviewId, reason),
+    mutationFn: ({ reviewId, reason }: { reviewId: string; reason: string }) =>
+      reviewService.hideReview(reviewId, reason),
     onSuccess: (review) => {
-      queryClient.invalidateQueries({ queryKey: [PRODUCT_REVIEWS_KEY, review.productId] });
-      queryClient.invalidateQueries({ queryKey: [PRODUCTS_KEY, review.productId] });
+      queryClient.invalidateQueries({
+        queryKey: [PRODUCT_REVIEWS_KEY, review.productId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [PRODUCTS_KEY, review.productId],
+      });
       queryClient.invalidateQueries({ queryKey: [ADMIN_REVIEWS_KEY] });
       toast.success("Review hidden.");
     },
@@ -106,8 +137,12 @@ export function useShowReview() {
   return useMutation({
     mutationFn: (reviewId: string) => reviewService.showReview(reviewId),
     onSuccess: (review) => {
-      queryClient.invalidateQueries({ queryKey: [PRODUCT_REVIEWS_KEY, review.productId] });
-      queryClient.invalidateQueries({ queryKey: [PRODUCTS_KEY, review.productId] });
+      queryClient.invalidateQueries({
+        queryKey: [PRODUCT_REVIEWS_KEY, review.productId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [PRODUCTS_KEY, review.productId],
+      });
       queryClient.invalidateQueries({ queryKey: [ADMIN_REVIEWS_KEY] });
       toast.success("Review is visible again.");
     },
@@ -121,7 +156,8 @@ export function useAdminDeleteReview() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (reviewId: string) => reviewService.deleteReviewAsAdmin(reviewId),
+    mutationFn: (reviewId: string) =>
+      reviewService.deleteReviewAsAdmin(reviewId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [PRODUCT_REVIEWS_KEY] });
       queryClient.invalidateQueries({ queryKey: [PRODUCTS_KEY] });

@@ -1,4 +1,4 @@
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
+﻿import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -17,7 +17,10 @@ const RESEND_COOLDOWN_SECONDS = 60;
 const resetPasswordSchema = z
   .object({
     email: z.string().trim().email("Email không hợp lệ"),
-    otp: z.string().trim().regex(/^\d{6}$/, "Mã xác thực phải gồm 6 chữ số"),
+    otp: z
+      .string()
+      .trim()
+      .regex(/^\d{6}$/, "Mã xác thực phải gồm 6 chữ số"),
     newPassword: z.string().min(6, "Mật khẩu phải có ít nhất 6 ký tự"),
     confirmPassword: z.string().min(6, "Vui lòng xác nhận mật khẩu"),
   })
@@ -35,6 +38,13 @@ const getErrorMessage = (error: unknown) => {
   return "Không thể đặt lại mật khẩu";
 };
 
+const getRemainingSeconds = (error: unknown) => {
+  if (error instanceof AxiosError) {
+    const value = Number(error.response?.data?.remainingSeconds || 0);
+    return Number.isFinite(value) && value > 0 ? value : 0;
+  }
+  return 0;
+};
 function CircularCountdownButton({
   cooldown,
   loading,
@@ -74,7 +84,10 @@ function CircularCountdownButton({
 export default function ResetPasswordPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const initialEmail = useMemo(() => searchParams.get("email") || "", [searchParams]);
+  const initialEmail = useMemo(
+    () => searchParams.get("email") || "",
+    [searchParams],
+  );
   const [cooldown, setCooldown] = useState(RESEND_COOLDOWN_SECONDS);
   const [expiresIn, setExpiresIn] = useState(OTP_TTL_SECONDS);
   const [isResending, setIsResending] = useState(false);
@@ -105,6 +118,8 @@ export default function ResetPasswordPage() {
   }, []);
 
   const resendOtp = async () => {
+    if (cooldown > 0) return;
+
     const email = getValues("email");
     const parsed = z.string().trim().email().safeParse(email);
 
@@ -115,11 +130,15 @@ export default function ResetPasswordPage() {
 
     try {
       setIsResending(true);
-      setCooldown(RESEND_COOLDOWN_SECONDS);
       const result = await authService.forgotPassword(parsed.data);
       toast.success(result.message);
-      setExpiresIn(OTP_TTL_SECONDS);
+      setCooldown(result.cooldownSeconds || RESEND_COOLDOWN_SECONDS);
+      setExpiresIn(result.otpExpiresIn || OTP_TTL_SECONDS);
     } catch (error) {
+      const remainingSeconds = getRemainingSeconds(error);
+      if (remainingSeconds > 0) {
+        setCooldown(remainingSeconds);
+      }
       toast.error(getErrorMessage(error));
     } finally {
       setIsResending(false);
@@ -166,8 +185,7 @@ export default function ResetPasswordPage() {
             "Mã xác thực đã hết hạn. Vui lòng gửi lại mã."
           ) : (
             <span>
-              Mã xác thực còn hiệu lực trong{" "}
-              <strong>{expiresIn}</strong> giây.
+              Mã xác thực còn hiệu lực trong <strong>{expiresIn}</strong> giây.
             </span>
           )}
         </div>
@@ -217,14 +235,22 @@ export default function ResetPasswordPage() {
             {...register("confirmPassword")}
           />
 
-          <Button type="submit" size="lg" loading={isSubmitting} className="w-full">
+          <Button
+            type="submit"
+            size="lg"
+            loading={isSubmitting}
+            className="w-full"
+          >
             Đặt lại mật khẩu
           </Button>
         </form>
 
         <p className="mt-6 text-center text-sm text-gray-500 dark:text-gray-400">
           Quay lại{" "}
-          <Link to="/login" className="font-semibold text-amber-500 hover:underline">
+          <Link
+            to="/login"
+            className="font-semibold text-amber-500 hover:underline"
+          >
             đăng nhập
           </Link>
         </p>

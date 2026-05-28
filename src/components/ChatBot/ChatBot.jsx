@@ -29,7 +29,9 @@ export default function ChatBot() {
   const [sessionId, setSessionId] = useState(() => {
     return sessionStorage.getItem('chatbot_session') || null;
   });
+  const sessionIdRef = useRef(sessionStorage.getItem('chatbot_session') || null);
   const [socket, setSocket] = useState(null);
+  const [socketReady, setSocketReady] = useState(false);
   const [liveSocket, setLiveSocket] = useState(null);
   const [activeTab, setActiveTab] = useState('ai');
   const [conversations, setConversations] = useState([]);
@@ -78,56 +80,84 @@ export default function ChatBot() {
   }, [messages]);
 
   useEffect(() => {
+    sessionIdRef.current = sessionId;
     if (sessionId) {
       sessionStorage.setItem('chatbot_session', sessionId);
     }
   }, [sessionId]);
 
+  const appendAssistantMessage = (payload) => {
+    const text =
+      payload?.data?.assistantMessage ||
+      payload?.data?.message ||
+      payload?.message ||
+      'Xin lỗi, đã có lỗi xảy ra. Vui lòng thử lại.';
+    const rawProducts = payload?.data?.products;
+    const products =
+      Array.isArray(rawProducts) && rawProducts.length > 0 ? rawProducts : undefined;
+    setMessages((prev) => [
+      ...prev,
+      {
+        role: 'assistant',
+        content: text,
+        products,
+        cart: payload?.data?.cart,
+        showCheckoutButton: payload?.data?.showCheckoutButton,
+        timestamp: new Date(),
+      },
+    ]);
+  };
+
   // Initialize socket connection
   useEffect(() => {
-    const newSocket = io(CHAT_SERVICE_URL);
+    const newSocket = io(CHAT_SERVICE_URL, {
+      transports: ['websocket', 'polling'],
+      reconnection: true,
+    });
     setSocket(newSocket);
+    setSocketReady(false);
 
     newSocket.on('connect', () => {
       console.log('Connected to chat service');
-      let currentSessionId = sessionId;
+      setSocketReady(true);
+      let currentSessionId = sessionIdRef.current;
       if (!currentSessionId) {
         currentSessionId = `session_${Date.now()}`;
+        sessionIdRef.current = currentSessionId;
         setSessionId(currentSessionId);
       }
       newSocket.emit('join_conversation', { sessionId: currentSessionId });
     });
 
+    newSocket.on('disconnect', () => {
+      setSocketReady(false);
+      setIsTyping(false);
+    });
+
     newSocket.on('receive_message', (data) => {
       console.log('Received message data:', data);
       setIsTyping(false);
-      if (data.success) {
-        console.log('Products received:', data.data.products);
-        console.log('Cart:', data.data.cart);
-        console.log('Show checkout:', data.data.showCheckoutButton);
-        
-        setMessages(prev => [...prev, {
-          role: 'assistant',
-          content: data.data.assistantMessage,
-          products: data.data.products,
-          cart: data.data.cart,
-          showCheckoutButton: data.data.showCheckoutButton,
-          timestamp: new Date()
-        }]);
-      }
+      appendAssistantMessage(data);
     });
 
     newSocket.on('error', (data) => {
       setIsTyping(false);
-      setMessages(prev => [...prev, {
-        role: 'assistant',
-        content: 'Xin lỗi, đã có lỗi xảy ra. Vui lòng thử lại.',
-        timestamp: new Date()
-      }]);
+      appendAssistantMessage({
+        data: { message: data?.message || 'Xin lỗi, đã có lỗi xảy ra. Vui lòng thử lại.' },
+      });
     });
 
-    return () => newSocket.close();
+    return () => {
+      newSocket.close();
+      setSocketReady(false);
+    };
   }, []);
+
+  useEffect(() => {
+    if (!isTyping) return undefined;
+    const timer = setTimeout(() => setIsTyping(false), 45000);
+    return () => clearTimeout(timer);
+  }, [isTyping]);
 
   // Auto scroll to bottom
   useEffect(() => {
@@ -252,22 +282,24 @@ export default function ChatBot() {
   }, [isOpen]);
 
   const handleSendMessage = () => {
-    if (!inputMessage.trim() || !socket || !sessionId) return;
+    const activeSessionId = sessionIdRef.current || sessionId;
+    if (!inputMessage.trim() || !socket || !socketReady || !activeSessionId) return;
 
     const userMessage = inputMessage.trim();
-    
-    // Add user message to UI
-    setMessages(prev => [...prev, {
-      role: 'user',
-      content: userMessage,
-      timestamp: new Date()
-    }]);
 
-    // Send to server
+    setMessages((prev) => [
+      ...prev,
+      {
+        role: 'user',
+        content: userMessage,
+        timestamp: new Date(),
+      },
+    ]);
+
     socket.emit('send_message', {
-      sessionId,
+      sessionId: activeSessionId,
       message: userMessage,
-      userId: 'guest_' + Date.now()
+      userId: authUser?.id || authUser?._id || `guest_${Date.now()}`,
     });
 
     setInputMessage('');
@@ -668,8 +700,10 @@ export default function ChatBot() {
                       </div>
                     </div>
 
-                    {/* Product Cards */}
-                    {message.products && message.products.length > 0 && (
+                    {/* Product Cards — chỉ tin nhắn assistant có products riêng của lượt đó */}
+                    {message.role === 'assistant' &&
+                      Array.isArray(message.products) &&
+                      message.products.length > 0 && (
                       <div className="product-cards">
                         {message.products.map((product) => (
                           <div key={product._id} className="product-card" onClick={() => handleProductClick(product._id)}>
@@ -726,7 +760,7 @@ export default function ChatBot() {
                   placeholder="Nhập tin nhắn..."
                   className="chat-bot-input"
                 />
-                <button onClick={handleSendMessage} disabled={!inputMessage.trim()} className="chat-bot-send" aria-label="Send message">
+                <button onClick={handleSendMessage} disabled={!inputMessage.trim() || !socketReady} className="chat-bot-send" aria-label="Send message">
                   <Send size={20} />
                 </button>
               </div>

@@ -143,6 +143,14 @@ export interface ReviewPayload {
   images?: Array<{ url: string; publicId?: string }>;
 }
 
+export interface ProductReviewsParams {
+  page?: number;
+  limit?: number;
+  sortBy?: "createdAt" | "rating";
+  sortOrder?: "asc" | "desc";
+  rating?: number;
+}
+
 export interface ReviewListResponse {
   success?: boolean;
   reviews: Review[];
@@ -280,7 +288,7 @@ export interface ShippingAddress {
   detailAddress: string;
 }
 
-export type PaymentMethod = "cash" | "banking";
+export type PaymentMethod = "cash" | "banking" | "vnpay";
 export type OrderStatus =
   | "pending"
   | "confirmed"
