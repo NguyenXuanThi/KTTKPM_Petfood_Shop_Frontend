@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { io } from 'socket.io-client';
 import { MessageCircle, X, Send, Image as ImageIcon, Smile } from 'lucide-react';
 import Picker from 'emoji-picker-react';
@@ -11,6 +12,12 @@ const LIVE_SERVICE_URL = 'http://localhost:3012'; // Live Chat Service
 const UPLOAD_SERVICE_URL = 'http://localhost:3006';
 
 export default function ChatBot() {
+  const { t, i18n } = useTranslation();
+  const locale = i18n.language?.startsWith('jp') || i18n.language?.startsWith('ja')
+    ? 'ja-JP'
+    : i18n.language?.startsWith('en')
+      ? 'en-US'
+      : 'vi-VN';
   
   const [isOpen, setIsOpen] = useState(() => {
     return sessionStorage.getItem('chatbot_open') === 'true';
@@ -91,7 +98,7 @@ export default function ChatBot() {
       payload?.data?.assistantMessage ||
       payload?.data?.message ||
       payload?.message ||
-      'Xin lỗi, đã có lỗi xảy ra. Vui lòng thử lại.';
+      t('pawmart.chat.fallbackError');
     const rawProducts = payload?.data?.products;
     const products =
       Array.isArray(rawProducts) && rawProducts.length > 0 ? rawProducts : undefined;
@@ -143,7 +150,7 @@ export default function ChatBot() {
     newSocket.on('error', (data) => {
       setIsTyping(false);
       appendAssistantMessage({
-        data: { message: data?.message || 'Xin lỗi, đã có lỗi xảy ra. Vui lòng thử lại.' },
+        data: { message: data?.message || t('pawmart.chat.fallbackError') },
       });
     });
 
@@ -249,7 +256,7 @@ export default function ChatBot() {
             const msgs = data.data;
             const last = msgs[msgs.length - 1];
             const isMine = authUser && (authUser.id === last.senderId || authUser._id === last.senderId);
-            const senderLabel = isMine ? 'Bạn' : (last.senderName || c.customerName || 'Người dùng');
+            const senderLabel = isMine ? t('pawmart.chat.you') : (last.senderName || c.customerName || t('pawmart.chat.user'));
             const preview = `${senderLabel}: ${last.message}`;
             return { ...c, _preview: preview, _lastMessageAt: c.lastMessageAt || last.createdAt };
           }
@@ -275,7 +282,7 @@ export default function ChatBot() {
     if (isOpen && messages.length === 0) {
       setMessages([{
         role: 'assistant',
-        content: 'Xin chào! 👋 Tôi là trợ lý AI của PetFood. Tôi có thể giúp bạn:\n\n• Tìm kiếm sản phẩm\n• Kiểm tra giá và tồn kho\n• Đặt hàng nhanh chóng\n\nBạn cần tôi giúp gì?',
+        content: t('pawmart.chat.welcome'),
         timestamp: new Date()
       }]);
     }
@@ -427,13 +434,13 @@ export default function ChatBot() {
     // basic validation (allowed types and size enforced by upload-service as well)
     const allowed = ['image/jpeg', 'image/png', 'image/webp', 'image/jpg'];
     if (!allowed.includes(file.type)) {
-      alert('Chỉ chấp nhận ảnh jpg, png, webp');
+      alert(t('pawmart.chat.imageTypeError'));
       return;
     }
 
     const maxMb = 5;
     if (file.size > maxMb * 1024 * 1024) {
-      alert(`Kích thước ảnh lớn hơn ${maxMb}MB`);
+      alert(t('pawmart.chat.imageSizeError', { max: maxMb }));
       return;
     }
 
@@ -452,14 +459,14 @@ export default function ChatBot() {
       if (!res.ok) {
         const txt = await res.text();
         console.error('upload error', txt);
-        alert('Upload thất bại');
+        alert(t('pawmart.chat.uploadFailed'));
         return;
       }
 
       const data = await res.json();
       const fileUrl = data.url || data.secure_url || (data.data && data.data.url) || '';
       if (!fileUrl) {
-        alert('Upload không trả về URL');
+        alert(t('pawmart.chat.uploadNoUrl'));
         return;
       }
 
@@ -482,7 +489,7 @@ export default function ChatBot() {
       });
     } catch (err) {
       console.error('file upload error', err);
-      alert('Upload thất bại');
+      alert(t('pawmart.chat.uploadFailed'));
     } finally {
       setIsUploading(false);
       // reset input
@@ -632,7 +639,7 @@ export default function ChatBot() {
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="chat-bot-button"
-        aria-label="Open chat"
+        aria-label={t('pawmart.chat.open')}
       >
         {isOpen ? (
           <X size={24} />
@@ -654,13 +661,13 @@ export default function ChatBot() {
               </div>
               <div>
                 <h3 className="chat-bot-title">PetFood Chat</h3>
-                <p className="chat-bot-subtitle">Chọn chế độ chat</p>
+                <p className="chat-bot-subtitle">{t('pawmart.chat.subtitle')}</p>
               </div>
             </div>
             <button
               onClick={() => setIsOpen(false)}
               className="chat-bot-close"
-              aria-label="Close chat"
+              aria-label={t('pawmart.chat.close')}
             >
               <X size={20} />
             </button>
@@ -696,7 +703,7 @@ export default function ChatBot() {
                     <div className={`chat-message ${message.role === 'user' ? 'chat-message-user' : 'chat-message-bot'}`}>
                       <div className="chat-message-content">{message.content}</div>
                       <div className="chat-message-time">
-                        {new Date(message.timestamp).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}
+                        {new Date(message.timestamp).toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' })}
                       </div>
                     </div>
 
@@ -718,9 +725,9 @@ export default function ChatBot() {
                               <h4 className="product-card-name">{product.name}</h4>
                               <p className="product-card-price">{product.price?.toLocaleString('vi-VN')}đ</p>
                               {product.stock > 0 ? (
-                                <span className="product-card-stock in-stock">Còn {product.stock} sản phẩm</span>
+                                <span className="product-card-stock in-stock">{t('pawmart.chat.inStock', { count: product.stock })}</span>
                               ) : (
-                                <span className="product-card-stock out-of-stock">Hết hàng</span>
+                                <span className="product-card-stock out-of-stock">{t('pawmart.chat.outOfStock')}</span>
                               )}
                             </div>
                           </div>
@@ -732,7 +739,7 @@ export default function ChatBot() {
                     {message.showCheckoutButton && message.cart && message.cart.length > 0 && (
                       <div className="quick-checkout-container">
                         <button className="quick-checkout-button" onClick={() => handleQuickCheckout(message.cart)}>
-                          🛒 Tạo đơn hàng nhanh ({message.cart.length} sản phẩm)
+                          🛒 {t('pawmart.chat.quickCheckout', { count: message.cart.length })}
                         </button>
                       </div>
                     )}
@@ -757,10 +764,10 @@ export default function ChatBot() {
                   value={inputMessage}
                   onChange={(e) => setInputMessage(e.target.value)}
                   onKeyPress={handleKeyPress}
-                  placeholder="Nhập tin nhắn..."
+                  placeholder={t('pawmart.chat.inputPlaceholder')}
                   className="chat-bot-input"
                 />
-                <button onClick={handleSendMessage} disabled={!inputMessage.trim() || !socketReady} className="chat-bot-send" aria-label="Send message">
+                <button onClick={handleSendMessage} disabled={!inputMessage.trim() || !socketReady} className="chat-bot-send" aria-label={t('pawmart.chat.sendMessage')}>
                   <Send size={20} />
                 </button>
               </div>
@@ -775,18 +782,18 @@ export default function ChatBot() {
                     <div style={{ fontSize: 36, marginBottom: 8 }}>🔒</div>
                     {authUser && (authUser.role === 'admin' || authUser.role === 'support') ? (
                       <>
-                        <div style={{ fontSize: 15, fontWeight: 600, marginBottom: 8 }}>Tài khoản nhân viên không sử dụng được Live Chat phía khách hàng</div>
-                        <div style={{ marginBottom: 10, color: '#6b7280', textAlign: 'center' }}>Vui lòng sử dụng Support Dashboard để quản lý hội thoại khách hàng.</div>
+                        <div style={{ fontSize: 15, fontWeight: 600, marginBottom: 8 }}>{t('pawmart.chat.staffLocked')}</div>
+                        <div style={{ marginBottom: 10, color: '#6b7280', textAlign: 'center' }}>{t('pawmart.chat.staffLockedDesc')}</div>
                         <div style={{ display: 'flex', justifyContent: 'center' }}>
-                          <Button size="lg" onClick={() => { window.location.href = '/support'; }}>Mở Support Dashboard</Button>
+                          <Button size="lg" onClick={() => { window.location.href = '/support'; }}>{t('pawmart.chat.openSupportDashboard')}</Button>
                         </div>
                       </>
                     ) : (
                       <>
-                        <div style={{ fontSize: 15, fontWeight: 600, marginBottom: 8 }}>Bạn cần đăng nhập để sử dụng Live Chat</div>
-                        <div style={{ marginBottom: 8, color: '#6b7280' }}>Live Chat chỉ dành cho tài khoản đã đăng nhập.</div>
+                        <div style={{ fontSize: 15, fontWeight: 600, marginBottom: 8 }}>{t('pawmart.chat.loginRequired')}</div>
+                        <div style={{ marginBottom: 8, color: '#6b7280' }}>{t('pawmart.chat.loginRequiredDesc')}</div>
                         <div>
-                          <Button size="lg" onClick={() => { window.location.href = '/login'; }}>Đăng nhập ngay</Button>
+                          <Button size="lg" onClick={() => { window.location.href = '/login'; }}>{t('pawmart.chat.loginNow')}</Button>
                         </div>
                       </>
                     )}
@@ -835,8 +842,8 @@ export default function ChatBot() {
                         const today = new Date();
                         const yesterday = new Date();
                         yesterday.setDate(today.getDate() - 1);
-                        if (isSameDay(d, today)) return 'Hôm nay';
-                        if (isSameDay(d, yesterday)) return 'Hôm qua';
+                        if (isSameDay(d, today)) return t('pawmart.chat.today');
+                        if (isSameDay(d, yesterday)) return t('pawmart.chat.yesterday');
                         const dd = String(d.getDate()).padStart(2, '0');
                         const mm = String(d.getMonth() + 1).padStart(2, '0');
                         const yyyy = d.getFullYear();
@@ -845,7 +852,7 @@ export default function ChatBot() {
 
                       const formatTime = (iso) => {
                         if (!iso) return '';
-                        try { return new Date(iso).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }); } catch (e) { return ''; }
+                        try { return new Date(iso).toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' }); } catch (e) { return ''; }
                       };
 
                       const prev = liveMessages[i - 1];
@@ -898,7 +905,7 @@ export default function ChatBot() {
                     <input
                       ref={liveInputRef}
                       className="chat-bot-input live-input-field"
-                      placeholder="Nhập tin nhắn..."
+                      placeholder={t('pawmart.chat.inputPlaceholder')}
                       onKeyDown={handleLiveKeyDown}
                       onChange={(e) => setLiveText(e.target.value)}
                     />
@@ -909,7 +916,7 @@ export default function ChatBot() {
                       <button type="button" className="icon-button" onClick={handleUploadClick} title="Upload image">
                         <ImageIcon size={18} />
                       </button>
-                      <button type="button" className="icon-button" onClick={() => setShowProductPicker(!showProductPicker)} title="Gửi sản phẩm">
+                      <button type="button" className="icon-button" onClick={() => setShowProductPicker(!showProductPicker)} title={t('pawmart.chat.sendProduct')}>
                         🛍️
                       </button>
                       <button className="chat-bot-send" onClick={handleSendLive} disabled={isUploading || !liveText.trim()}><Send size={18} /></button>
@@ -923,11 +930,11 @@ export default function ChatBot() {
                     {showProductPicker && (
                       <div ref={productPickerRef} style={{ position: 'absolute', bottom: 70, right: 20, zIndex: 60, width: 360, height: 420, display: 'flex', flexDirection: 'column', background: 'white', borderRadius: 8, boxShadow: '0 8px 24px rgba(15,23,42,0.12)', padding: 12 }}>
                         <div style={{ display: 'flex', gap: 8, marginBottom: 8, alignItems: 'center' }}>
-                          <input value={productQuery} onChange={(e)=>setProductQuery(e.target.value)} placeholder="Tìm sản phẩm..." style={{ width: '100%', padding: '8px 10px', borderRadius: 8, border: '1px solid #e5e7eb' }} />
+                          <input value={productQuery} onChange={(e)=>setProductQuery(e.target.value)} placeholder={t('pawmart.chat.searchProducts')} style={{ width: '100%', padding: '8px 10px', borderRadius: 8, border: '1px solid #e5e7eb' }} />
                         </div>
 
                         <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 8 }}>
-                          {isSearchingProducts ? <div>Đang tìm...</div> : null}
+                          {isSearchingProducts ? <div>{t('pawmart.chat.searching')}</div> : null}
                           {productResults.map(p => (
                             <div key={p._id} onClick={() => handleSelectProduct(p)} style={{ display:'flex', gap:8, alignItems:'center', padding:8, cursor:'pointer', borderRadius:6 }}>
                               <img src={p.imageUrl || 'https://placehold.co/80x80'} alt={p.name} style={{ width:56, height:56, objectFit:'cover', borderRadius:8, flex: '0 0 56px' }} />
@@ -938,7 +945,7 @@ export default function ChatBot() {
                             </div>
                           ))}
                           {productResults.length === 0 && !isSearchingProducts && (
-                            <div style={{ padding:8, color:'#6b7280' }}>Không tìm thấy sản phẩm</div>
+                            <div style={{ padding:8, color:'#6b7280' }}>{t('pawmart.chat.noProducts')}</div>
                           )}
                         </div>
                       </div>

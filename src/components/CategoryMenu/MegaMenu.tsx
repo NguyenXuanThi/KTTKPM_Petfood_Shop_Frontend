@@ -4,6 +4,7 @@ import { ChevronDown, ChevronRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useCategoryMenu } from "@/hooks/useCategories";
 import { CategoryNode } from "@/types";
+import { useTranslation } from "react-i18next";
 
 // ─── Level-3 column ───────────────────────────────────────────────────────────
 function SubColumn({ node }: { node: CategoryNode }) {
@@ -37,6 +38,7 @@ function SubColumn({ node }: { node: CategoryNode }) {
 
 // ─── Dropdown panel for one top-level item ────────────────────────────────────
 function MegaPanel({ node }: { node: CategoryNode }) {
+  const { t } = useTranslation();
   const cols = [...(node.children ?? [])].sort(
     (a, b) => (a.menuOrder ?? 0) - (b.menuOrder ?? 0),
   );
@@ -57,13 +59,13 @@ function MegaPanel({ node }: { node: CategoryNode }) {
           to={`/products?categoryId=${node._id}`}
           className="text-base font-bold text-gray-900 hover:text-amber-500 dark:text-white"
         >
-          All {node.name}
+          {t("pawmart.categoryMenu.all", { name: node.name })}
         </Link>
         <Link
           to={`/products?categoryId=${node._id}`}
           className="text-xs text-amber-500 hover:underline"
         >
-          View all →
+          {t("pawmart.categoryMenu.viewAll")}
         </Link>
       </div>
       {/* Columns */}

@@ -64,18 +64,18 @@ export function Footer() {
             </h4>
             <ul className="space-y-2">
               {[
-                "Dog Food",
-                "Cat Food",
-                "Bird Food",
-                "Fish Food",
-                "Treats & Snacks",
+                { query: "Dog Food", label: t("pawmart.footer.dogFood") },
+                { query: "Cat Food", label: t("pawmart.footer.catFood") },
+                { query: "Bird Food", label: t("pawmart.footer.birdFood") },
+                { query: "Fish Food", label: t("pawmart.footer.fishFood") },
+                { query: "Treats & Snacks", label: t("pawmart.footer.treats") },
               ].map((cat) => (
-                <li key={cat}>
+                <li key={cat.query}>
                   <Link
-                    to={`/search?q=${encodeURIComponent(cat)}`}
+                    to={`/search?q=${encodeURIComponent(cat.query)}`}
                     className="text-sm text-gray-500 transition-colors hover:text-amber-500 dark:text-gray-400 dark:hover:text-amber-400"
                   >
-                    {cat}
+                    {cat.label}
                   </Link>
                 </li>
               ))}
@@ -92,7 +92,10 @@ export function Footer() {
                 { icon: <Mail size={14} />, text: "vupro0211@gmail.com" },
                 { icon: <Phone size={14} />, text: "0338975317" },
                 { icon: <Phone size={14} />, text: "0902926344" },
-                { icon: <MapPin size={14} />, text: "Ho Chi Minh City, VN" },
+                {
+                  icon: <MapPin size={14} />,
+                  text: t("pawmart.footer.location"),
+                },
               ].map(({ icon, text }, i) => (
                 <li
                   key={i}

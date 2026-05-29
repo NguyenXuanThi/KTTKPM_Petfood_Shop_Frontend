@@ -1,10 +1,12 @@
-﻿import { Link } from "react-router-dom";
+﻿﻿import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { RotateCcw } from "lucide-react";
 import { useMyRewards } from "@/hooks/useRewards";
 import { formatCoins } from "@/components/rewards/CoinBadge";
+import { useTranslation } from "react-i18next";
 
 export function HeaderRewardBadge() {
+  const { t } = useTranslation();
   const { data: reward } = useMyRewards({ enabled: true });
   const coins = reward?.coinBalance ?? 0;
   const spins = reward?.spinBalance ?? 0;
@@ -13,7 +15,7 @@ export function HeaderRewardBadge() {
     <Link
       to="/rewards"
       className="group relative hidden items-center gap-1.5 rounded-2xl border border-amber-100 bg-gradient-to-r from-amber-50 to-orange-50 px-3 py-1.5 text-sm font-black text-amber-700 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md dark:border-amber-900/40 dark:from-amber-950/30 dark:to-orange-950/20 dark:text-amber-300 sm:flex"
-      aria-label="Xem phần thưởng của tôi"
+      aria-label={t("pawmart.rewards.myRewards")}
     >
       {spins > 0 && (
         <motion.span

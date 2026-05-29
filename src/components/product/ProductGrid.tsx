@@ -3,6 +3,7 @@ import { ProductCard } from "./ProductCard";
 import { ProductCardSkeleton } from "@/components/ui/Skeleton";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { PackageSearch } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 interface ProductGridProps {
   products: Product[];
@@ -16,9 +17,10 @@ export function ProductGrid({
   products,
   isLoading = false,
   skeletonCount = 8,
-  emptyTitle = "No products found",
-  emptyDescription = "Try adjusting your search or filters.",
+  emptyTitle,
+  emptyDescription,
 }: ProductGridProps) {
+  const { t } = useTranslation();
   if (isLoading) {
     return (
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
@@ -33,8 +35,8 @@ export function ProductGrid({
     return (
       <EmptyState
         icon={<PackageSearch size={28} />}
-        title={emptyTitle}
-        description={emptyDescription}
+        title={emptyTitle ?? t("pawmart.products.noProducts")}
+        description={emptyDescription ?? t("pawmart.products.noProductsDesc")}
       />
     );
   }

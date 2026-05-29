@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
 import { Input } from "@/components/ui/Input";
 import { CART_KEY } from "@/hooks/useCartApi";
+import { useTranslation } from "react-i18next";
 
 type DirectBuyCheckoutItem = {
   productId: string;
@@ -59,6 +60,7 @@ const getDirectBuyState = (state: unknown): DirectBuyCheckoutState | null => {
 };
 
 export default function CheckoutPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
   const queryClient = useQueryClient();
@@ -170,17 +172,20 @@ export default function CheckoutPage() {
       setCouponDialogOpen(false);
       toast.success(result.message);
     } catch (error: any) {
-      toast.error(error?.response?.data?.message ?? "Unable to apply coupon");
+      toast.error(
+        error?.response?.data?.message ??
+          t("pawmart.checkout.unableApplyCoupon"),
+      );
     }
   };
 
   const createOrderMutation = useMutation({
     mutationFn: () => {
       if (!selectedAddress?.id) {
-        throw new Error("Please select a shipping address");
+        throw new Error(t("pawmart.checkout.selectShippingAddress"));
       }
       if (selectedItems.length === 0) {
-        throw new Error("Please select at least one item");
+        throw new Error(t("pawmart.checkout.selectAtLeastOneItem"));
       }
 
       return orderService.createOrder({
@@ -212,17 +217,15 @@ export default function CheckoutPage() {
         queryClient.invalidateQueries({ queryKey: [CART_KEY] });
       }
       if (result.nextAction === "UPLOAD_BANKING_PROOF") {
-        toast.info(
-          "Please upload your bank transfer proof to complete payment confirmation.",
-        );
+        toast.info(t("pawmart.checkout.uploadProofInfo"));
         navigate(`/payment/upload-proof/${result.order._id}`);
       } else if (result.nextAction === "REDIRECT_VNPAY" && result.paymentUrl) {
-        toast.info("Đang chuyển đến trang thanh toán VNPay...");
+        toast.info(t("pawmart.checkout.redirectVnpay"));
         navigate(`/payment/vnpay`, {
           state: { paymentUrl: result.paymentUrl, orderId: result.order._id },
         });
       } else {
-        toast.success("Order created successfully");
+        toast.success(t("pawmart.checkout.orderCreated"));
         navigate(`/my-account/orders/${result.order._id}`);
       }
     },
@@ -230,7 +233,7 @@ export default function CheckoutPage() {
       toast.error(
         error?.response?.data?.message ??
           error?.message ??
-          "Failed to place order",
+          t("pawmart.checkout.placeOrderFailed"),
       );
     },
   });
@@ -271,10 +274,10 @@ export default function CheckoutPage() {
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 md:px-6">
       <h1 className="mb-6 text-2xl font-bold text-gray-900 dark:text-white">
-        Checkout{" "}
+        {t("pawmart.checkout.title")}{" "}
         {isDirectBuy && (
           <span className="text-base font-medium text-amber-600">
-            (Mua ngay)
+            ({t("pawmart.checkout.buyNow")})
           </span>
         )}
       </h1>
@@ -284,23 +287,26 @@ export default function CheckoutPage() {
           <section className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-gray-900">
             <div className="mb-3 flex items-center justify-between">
               <h2 className="flex items-center gap-2 font-semibold text-gray-900 dark:text-white">
-                <MapPin size={16} className="text-amber-500" /> Shipping address
+                <MapPin size={16} className="text-amber-500" />{" "}
+                {t("pawmart.checkout.shippingAddress")}
               </h2>
               <Button
                 size="sm"
                 variant="outline"
                 onClick={() => setAddressDialogOpen(true)}
               >
-                Change Address
+                {t("pawmart.checkout.changeAddress")}
               </Button>
             </div>
 
             {addressLoading && (
-              <p className="text-sm text-gray-500">Loading addresses...</p>
+              <p className="text-sm text-gray-500">
+                {t("pawmart.checkout.loadingAddresses")}
+              </p>
             )}
             {!addressLoading && !selectedAddress && (
               <p className="text-sm text-red-500">
-                No address found. Please add address in My Account.
+                {t("pawmart.checkout.noAddress")}
               </p>
             )}
             {selectedAddress && (
@@ -318,7 +324,9 @@ export default function CheckoutPage() {
 
           <section className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-gray-900">
             <h2 className="mb-3 font-semibold text-gray-900 dark:text-white">
-              {isDirectBuy ? "Buy now item" : "Cart items"}
+              {isDirectBuy
+                ? t("pawmart.checkout.buyNowItem")
+                : t("pawmart.checkout.cartItems")}
             </h2>
             <div className="space-y-3">
               {selectedItems.map((item) => (
@@ -333,7 +341,7 @@ export default function CheckoutPage() {
                       {item.productName}
                     </p>
                     <p className="text-sm text-gray-500">
-                      Qty: {item.quantity}
+                      {t("pawmart.checkout.qty")}: {item.quantity}
                     </p>
                   </div>
                   <p className="font-semibold text-gray-900 dark:text-white">
@@ -346,20 +354,21 @@ export default function CheckoutPage() {
 
           <section className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-gray-900">
             <h2 className="mb-3 flex items-center gap-2 font-semibold text-gray-900 dark:text-white">
-              <Ticket size={16} className="text-amber-500" /> Coupon
+              <Ticket size={16} className="text-amber-500" />{" "}
+              {t("pawmart.checkout.coupon")}
             </h2>
             <div className="flex flex-col gap-2 sm:flex-row">
               <Input
                 value={couponCode}
                 onChange={(e) => setCouponCode(e.target.value)}
-                placeholder="Enter coupon code"
+                placeholder={t("pawmart.checkout.enterCoupon")}
               />
               <Button
                 variant="outline"
                 onClick={() => applyCoupon(couponCode)}
                 disabled={!couponCode}
               >
-                Apply
+                {t("pawmart.checkout.apply")}
               </Button>
               <Button
                 variant="ghost"
@@ -368,12 +377,14 @@ export default function CheckoutPage() {
                   refetchCoupons();
                 }}
               >
-                Choose Coupon
+                {t("pawmart.checkout.chooseCoupon")}
               </Button>
             </div>
             {appliedCouponCode ? (
               <div className="mt-3 flex items-center justify-between rounded-xl bg-emerald-50 px-3 py-2 text-sm text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-300">
-                <span>Applied {appliedCouponCode}</span>
+                <span>
+                  {t("pawmart.checkout.applied", { code: appliedCouponCode })}
+                </span>
                 <button
                   onClick={() => {
                     setAppliedCouponCode("");
@@ -383,28 +394,30 @@ export default function CheckoutPage() {
                   }}
                   className="font-semibold hover:underline"
                 >
-                  Remove
+                  {t("pawmart.checkout.remove")}
                 </button>
               </div>
             ) : (
               <p className="mt-2 text-xs text-gray-400">
-                Available coupons are filtered for this order amount.
+                {t("pawmart.checkout.couponHint")}
               </p>
             )}
 
             <div className="mt-4 space-y-2">
               <div className="flex items-center justify-between">
                 <p className="text-sm font-semibold text-gray-900 dark:text-white">
-                  Available coupons
+                  {t("pawmart.checkout.availableCoupons")}
                 </p>
                 {couponLoading && (
-                  <span className="text-xs text-gray-400">Loading...</span>
+                  <span className="text-xs text-gray-400">
+                    {t("pawmart.common.loading")}
+                  </span>
                 )}
               </div>
 
               {couponError && (
                 <p className="rounded-xl bg-red-50 px-3 py-2 text-sm text-red-600 dark:bg-red-900/20 dark:text-red-300">
-                  Unable to load coupons. You can still enter a code manually.
+                  {t("pawmart.checkout.unableLoadCoupons")}
                 </p>
               )}
 
@@ -412,7 +425,7 @@ export default function CheckoutPage() {
                 !couponError &&
                 (checkoutCoupons ?? []).length === 0 && (
                   <p className="rounded-xl bg-gray-50 px-3 py-2 text-sm text-gray-500 dark:bg-gray-800 dark:text-gray-300">
-                    No available coupons for this order.
+                    {t("pawmart.checkout.noAvailableCoupons")}
                   </p>
                 )}
 
@@ -434,13 +447,15 @@ export default function CheckoutPage() {
                         </p>
                         <span className="rounded-full bg-white px-2 py-0.5 text-[11px] font-semibold text-gray-500 dark:bg-gray-900 dark:text-gray-300">
                           {coupon.source === "assigned"
-                            ? "Assigned to you"
-                            : "Public"}
+                            ? t("pawmart.checkout.assignedToYou")
+                            : t("pawmart.checkout.public")}
                         </span>
                       </div>
                       <p className="text-sm text-gray-600 dark:text-gray-300">
-                        Saves {formatPrice(coupon.discountPreview || 0)} · Min{" "}
-                        {formatPrice(coupon.minOrderAmount || 0)}
+                        {t("pawmart.checkout.savesMin", {
+                          save: formatPrice(coupon.discountPreview || 0),
+                          min: formatPrice(coupon.minOrderAmount || 0),
+                        })}
                       </p>
                     </div>
                     <Button
@@ -449,7 +464,9 @@ export default function CheckoutPage() {
                       onClick={() => applyCoupon(coupon.code)}
                       disabled={selected}
                     >
-                      {selected ? "Applied" : "Apply"}
+                      {selected
+                        ? t("pawmart.checkout.appliedStatus")
+                        : t("pawmart.checkout.apply")}
                     </Button>
                   </div>
                 );
@@ -460,7 +477,9 @@ export default function CheckoutPage() {
                   onClick={() => setCouponDialogOpen(true)}
                   className="text-sm font-semibold text-amber-600 hover:underline"
                 >
-                  View all {(checkoutCoupons ?? []).length} coupons
+                  {t("pawmart.checkout.viewAllCoupons", {
+                    count: (checkoutCoupons ?? []).length,
+                  })}
                 </button>
               )}
             </div>
@@ -468,12 +487,13 @@ export default function CheckoutPage() {
 
           <section className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-gray-900">
             <h2 className="mb-3 flex items-center gap-2 font-semibold text-gray-900 dark:text-white">
-              <CreditCard size={16} className="text-amber-500" /> Payment method
+              <CreditCard size={16} className="text-amber-500" />{" "}
+              {t("pawmart.checkout.paymentMethod")}
             </h2>
             <div className="space-y-2">
               <label className="flex cursor-pointer items-center justify-between rounded-xl border border-gray-200 p-3 dark:border-gray-700">
                 <div className="flex items-center gap-2">
-                  <Truck size={16} /> Cash on Delivery
+                  <Truck size={16} /> {t("pawmart.checkout.cashOnDelivery")}
                 </div>
                 <input
                   type="radio"
@@ -483,7 +503,8 @@ export default function CheckoutPage() {
               </label>
               <label className="flex cursor-pointer items-center justify-between rounded-xl border border-gray-200 p-3 dark:border-gray-700">
                 <div className="flex items-center gap-2">
-                  <CreditCard size={16} /> Banking Transfer
+                  <CreditCard size={16} />{" "}
+                  {t("pawmart.checkout.bankingTransfer")}
                 </div>
                 <input
                   type="radio"
@@ -499,7 +520,7 @@ export default function CheckoutPage() {
               </div> */}
               <label className="flex cursor-pointer items-center justify-between rounded-xl border border-gray-200 p-3 dark:border-gray-700">
                 <div className="flex items-center gap-2">
-                  <QrCode size={16} /> VNPay (ATM / Visa / QR)
+                  <QrCode size={16} /> {t("pawmart.checkout.vnpay")}
                 </div>
                 <input
                   type="radio"
@@ -512,12 +533,10 @@ export default function CheckoutPage() {
             {paymentMethod === "vnpay" && (
               <div className="mt-4 space-y-2 rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-sm dark:border-emerald-900/40 dark:bg-emerald-900/20">
                 <p className="font-semibold text-emerald-700 dark:text-emerald-300">
-                  Thanh toán VNPay
+                  {t("pawmart.checkout.vnpayTitle")}
                 </p>
                 <p className="text-emerald-700/90 dark:text-emerald-300/90">
-                  Sau khi đặt hàng, bạn sẽ được chuyển sang cổng VNPay (sandbox)
-                  để thanh toán. Đơn được xác nhận sau khi thanh toán thành
-                  công.
+                  {t("pawmart.checkout.vnpayDesc")}
                 </p>
               </div>
             )}
@@ -525,27 +544,27 @@ export default function CheckoutPage() {
             {paymentMethod === "banking" && (
               <div className="mt-4 space-y-3 rounded-xl border border-blue-200 bg-blue-50 p-3 text-sm dark:border-blue-900/40 dark:bg-blue-900/20">
                 <p className="font-semibold text-blue-700 dark:text-blue-300">
-                  Bank transfer instructions
+                  {t("pawmart.checkout.bankInstructions")}
                 </p>
                 <p className="text-blue-700/90 dark:text-blue-300/90">
-                  Bank: Vietcombank - 0123456789 - PETFOOD COMPANY
+                  {t("pawmart.checkout.bankInfo")}
                 </p>
                 <div className="flex items-center gap-2 rounded-lg bg-white px-3 py-2 text-blue-700 dark:bg-gray-900 dark:text-blue-300">
-                  <QrCode size={16} /> QR placeholder - scan to transfer
+                  <QrCode size={16} /> {t("pawmart.checkout.qrPlaceholder")}
                 </div>
               </div>
             )}
 
             <div className="mt-4">
               <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
-                Order note
+                {t("pawmart.checkout.orderNote")}
               </label>
               <textarea
                 value={note}
                 onChange={(e) => setNote(e.target.value)}
                 rows={3}
                 className="w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm outline-none ring-0 focus:border-amber-400 dark:border-gray-700 dark:bg-gray-900"
-                placeholder="Optional note for delivery"
+                placeholder={t("pawmart.checkout.notePlaceholder")}
               />
             </div>
           </section>
@@ -553,27 +572,31 @@ export default function CheckoutPage() {
 
         <aside className="h-fit rounded-2xl border border-gray-100 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-gray-900">
           <h3 className="mb-4 font-semibold text-gray-900 dark:text-white">
-            Order summary
+            {t("pawmart.checkout.orderSummary")}
           </h3>
           <div className="space-y-2 text-sm">
             <div className="flex justify-between">
-              <span className="text-gray-500">Subtotal</span>
+              <span className="text-gray-500">
+                {t("pawmart.checkout.subtotal")}
+              </span>
               <span>{formatPrice(selectedSubtotal)}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-gray-500">Shipping</span>
+              <span className="text-gray-500">
+                {t("pawmart.checkout.shipping")}
+              </span>
               <span>{formatPrice(baseShippingFee)}</span>
             </div>
             <div className="flex justify-between text-emerald-600">
-              <span>Shipping Discount</span>
+              <span>{t("pawmart.checkout.shippingDiscount")}</span>
               <span>-{formatPrice(shippingDiscount)}</span>
             </div>
             <div className="flex justify-between text-emerald-600">
-              <span>Coupon Discount</span>
+              <span>{t("pawmart.checkout.couponDiscount")}</span>
               <span>-{formatPrice(couponDiscount)}</span>
             </div>
             <div className="flex justify-between border-t border-gray-100 pt-2 text-base font-bold dark:border-gray-800">
-              <span>Total</span>
+              <span>{t("pawmart.checkout.total")}</span>
               <span className="text-amber-600">{formatPrice(finalTotal)}</span>
             </div>
           </div>
@@ -582,7 +605,9 @@ export default function CheckoutPage() {
             loading={createOrderMutation.isPending}
             onClick={() => createOrderMutation.mutate()}
           >
-            {createOrderMutation.isPending ? "Đang xử lý..." : "Place order"}
+            {createOrderMutation.isPending
+              ? t("pawmart.checkout.processing")
+              : t("pawmart.checkout.placeOrder")}
           </Button>
         </aside>
       </div>
@@ -590,7 +615,7 @@ export default function CheckoutPage() {
       <Modal
         isOpen={addressDialogOpen}
         onClose={() => setAddressDialogOpen(false)}
-        title="Select shipping address"
+        title={t("pawmart.checkout.selectAddressTitle")}
         size="lg"
       >
         <div className="space-y-2">
@@ -609,7 +634,7 @@ export default function CheckoutPage() {
             >
               <p className="font-medium text-gray-900 dark:text-white">
                 {address.fullName} - {address.phone}{" "}
-                {address.isDefault && "(Default)"}
+                {address.isDefault && `(${t("pawmart.common.default")})`}
               </p>
               <p className="text-sm text-gray-500 dark:text-gray-300">
                 {address.detailAddress}, {address.ward}, {address.district},{" "}
@@ -623,24 +648,25 @@ export default function CheckoutPage() {
       <Modal
         isOpen={couponDialogOpen}
         onClose={() => setCouponDialogOpen(false)}
-        title="Available Coupons"
+        title={t("pawmart.checkout.availableCouponsTitle")}
         size="lg"
       >
         <div className="space-y-3">
           {couponLoading && (
-            <p className="text-sm text-gray-500">Loading coupons...</p>
+            <p className="text-sm text-gray-500">
+              {t("pawmart.checkout.loadingCoupons")}
+            </p>
           )}
           {couponError && (
             <p className="rounded-2xl bg-red-50 p-4 text-sm text-red-600 dark:bg-red-900/20 dark:text-red-300">
-              Unable to load available coupons. Please try again or enter a
-              coupon code manually.
+              {t("pawmart.checkout.unableLoadAvailableCoupons")}
             </p>
           )}
           {!couponLoading &&
             !couponError &&
             (checkoutCoupons ?? []).length === 0 && (
               <p className="rounded-2xl bg-gray-50 p-4 text-sm text-gray-500 dark:bg-gray-800">
-                No usable coupons for this order.
+                {t("pawmart.checkout.noUsableCoupons")}
               </p>
             )}
           {(checkoutCoupons ?? []).map((coupon) => {
@@ -655,29 +681,36 @@ export default function CheckoutPage() {
                       {coupon.code}
                     </p>
                     <p className="text-sm text-gray-600 dark:text-gray-300">
-                      {coupon.description || "Petfood discount coupon"}
+                      {coupon.description ||
+                        t("pawmart.checkout.discountCoupon")}
                     </p>
                     <p className="mt-1 text-xs text-gray-400">
                       {coupon.appliesTo === "shipping"
-                        ? "Shipping coupon"
-                        : "Order coupon"}{" "}
-                      · Min {formatPrice(coupon.minOrderAmount || 0)}
+                        ? t("pawmart.checkout.shippingCoupon")
+                        : t("pawmart.checkout.orderCoupon")}{" "}
+                      · {t("pawmart.filters.min")}{" "}
+                      {formatPrice(coupon.minOrderAmount || 0)}
                     </p>
                     <p className="text-xs text-gray-400">
                       {coupon.source === "assigned"
-                        ? "Assigned to you"
-                        : "Public campaign"}
+                        ? t("pawmart.checkout.assignedToYou")
+                        : t("pawmart.checkout.publicCampaign")}
                     </p>
                     <p className="text-xs text-gray-400">
-                      Hạn dùng {formatDate(coupon.expiresAt)}
+                      {t("pawmart.checkout.expiresAt", {
+                        date: formatDate(coupon.expiresAt),
+                      })}
                     </p>
                   </div>
                   <Button size="sm" onClick={() => applyCoupon(coupon.code)}>
-                    Apply
+                    {t("pawmart.checkout.apply")}
                   </Button>
                 </div>
                 <p className="mt-2 text-sm text-emerald-600">
-                  Saves {formatPrice(coupon.discountPreview || 0)}
+                  {t("pawmart.checkout.savesMin", {
+                    save: formatPrice(coupon.discountPreview || 0),
+                    min: formatPrice(coupon.minOrderAmount || 0),
+                  })}
                 </p>
               </div>
             );

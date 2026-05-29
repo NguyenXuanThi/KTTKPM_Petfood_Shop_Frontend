@@ -1,4 +1,4 @@
-﻿import { useState } from "react";
+﻿﻿import { useState } from "react";
 import { Link, NavLink, Outlet, useNavigate } from "react-router-dom";
 import {
   Home,
@@ -21,19 +21,75 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "react-i18next";
 
 const NAV_ITEMS = [
-  { to: "/my-account/profile", label: "Hồ sơ", icon: UserCircle2, end: true },
-  { to: "/my-account/addresses", label: "Địa chỉ", icon: MapPin, end: false },
-  { to: "/my-account/wishlist", label: "Wishlist", icon: Heart, end: false },
-  { to: "/my-account/orders", label: "Order của tôi", icon: Package, end: false },
-  { to: "/my-account/orders/shipping", label: "Order đang giao", icon: Truck, end: false },
-  { to: "/my-account/coupons", label: "Coupons", icon: Ticket, end: false },
-  { to: "/rewards", label: "Phần thưởng của tôi", icon: Gift, end: false },
-  { to: "/rewards/wheel", label: "Lucky Wheel", icon: RotateCcw, end: false },
-  { to: "/rewards/shop", label: "Cửa hàng đổi thưởng", icon: ShoppingBag, end: false },
-  { to: "/rewards/history", label: "Lịch sử quay", icon: Gift, end: false },
-  { to: "/my-account/security", label: "Bảo mật", icon: ShieldCheck, end: false },
+  {
+    to: "/my-account/profile",
+    labelKey: "pawmart.account.profile",
+    icon: UserCircle2,
+    end: true,
+  },
+  {
+    to: "/my-account/addresses",
+    labelKey: "pawmart.account.addresses",
+    icon: MapPin,
+    end: false,
+  },
+  {
+    to: "/my-account/wishlist",
+    labelKey: "pawmart.account.wishlist",
+    icon: Heart,
+    end: false,
+  },
+  {
+    to: "/my-account/orders",
+    labelKey: "pawmart.account.myOrders",
+    icon: Package,
+    end: false,
+  },
+  {
+    to: "/my-account/orders/shipping",
+    labelKey: "pawmart.account.shippingOrders",
+    icon: Truck,
+    end: false,
+  },
+  {
+    to: "/my-account/coupons",
+    labelKey: "pawmart.account.coupons",
+    icon: Ticket,
+    end: false,
+  },
+  {
+    to: "/rewards",
+    labelKey: "pawmart.account.myRewards",
+    icon: Gift,
+    end: false,
+  },
+  {
+    to: "/rewards/wheel",
+    labelKey: "pawmart.account.luckyWheel",
+    icon: RotateCcw,
+    end: false,
+  },
+  {
+    to: "/rewards/shop",
+    labelKey: "pawmart.account.rewardShop",
+    icon: ShoppingBag,
+    end: false,
+  },
+  {
+    to: "/rewards/history",
+    labelKey: "pawmart.account.spinHistory",
+    icon: Gift,
+    end: false,
+  },
+  {
+    to: "/my-account/security",
+    labelKey: "pawmart.account.security",
+    icon: ShieldCheck,
+    end: false,
+  },
 ];
 
 function getInitials(name: string) {
@@ -46,6 +102,7 @@ function getInitials(name: string) {
 }
 
 function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
+  const { t } = useTranslation();
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const isActive = user?.isActive !== false;
@@ -53,7 +110,11 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
   return (
     <div className="flex h-full flex-col">
       <div className="border-b border-gray-100 p-5 dark:border-gray-800">
-        <Link to="/" onClick={onNavigate} className="mb-4 flex items-center gap-2">
+        <Link
+          to="/"
+          onClick={onNavigate}
+          className="mb-4 flex items-center gap-2"
+        >
           <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-amber-500 text-sm font-bold text-white">
             P
           </div>
@@ -64,7 +125,11 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
         <div className="flex items-center gap-3">
           <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-full bg-amber-100 ring-2 ring-amber-200 dark:ring-amber-800">
             {user?.avatarUrl ? (
-              <img src={user.avatarUrl} alt={user?.fullName} className="h-full w-full object-cover" />
+              <img
+                src={user.avatarUrl}
+                alt={user?.fullName}
+                className="h-full w-full object-cover"
+              />
             ) : (
               <div className="flex h-full w-full items-center justify-center text-sm font-bold text-amber-700">
                 {getInitials(user?.fullName ?? "U")}
@@ -78,8 +143,12 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
             />
           </div>
           <div className="min-w-0">
-            <p className="truncate text-sm font-semibold text-gray-900 dark:text-white">{user?.fullName}</p>
-            <p className="truncate text-xs text-gray-500 dark:text-gray-400">{user?.email}</p>
+            <p className="truncate text-sm font-semibold text-gray-900 dark:text-white">
+              {user?.fullName}
+            </p>
+            <p className="truncate text-xs text-gray-500 dark:text-gray-400">
+              {user?.email}
+            </p>
           </div>
         </div>
       </div>
@@ -101,7 +170,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
             }
           >
             <item.icon size={17} />
-            <span className="flex-1">{item.label}</span>
+            <span className="flex-1">{t(item.labelKey)}</span>
             <ChevronRight size={13} className="opacity-40" />
           </NavLink>
         ))}
@@ -115,7 +184,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
           }}
           className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium text-red-500 transition-colors hover:bg-red-50 dark:hover:bg-red-900/20"
         >
-          <LogOut size={17} /> Sign Out
+          <LogOut size={17} /> {t("pawmart.nav.signOut")}
         </button>
       </div>
     </div>
@@ -123,6 +192,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
 }
 
 export default function AccountLayout() {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const navigate = useNavigate();
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -132,12 +202,22 @@ export default function AccountLayout() {
       <div className="border-b border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900">
         <div className="mx-auto flex h-14 max-w-7xl items-center justify-between gap-4 px-4 md:px-6">
           <nav className="flex items-center gap-1.5 text-sm">
-            <Link to="/" className="flex items-center gap-1 text-gray-500 transition-colors hover:text-amber-500 dark:text-gray-400">
+            <Link
+              to="/"
+              className="flex items-center gap-1 text-gray-500 transition-colors hover:text-amber-500 dark:text-gray-400"
+            >
               <Home size={14} />
-              <span className="hidden sm:inline">Home</span>
+              <span className="hidden sm:inline">
+                {t("pawmart.account.home")}
+              </span>
             </Link>
-            <ChevronRight size={13} className="text-gray-300 dark:text-gray-600" />
-            <span className="font-medium text-gray-900 dark:text-white">My Account</span>
+            <ChevronRight
+              size={13}
+              className="text-gray-300 dark:text-gray-600"
+            />
+            <span className="font-medium text-gray-900 dark:text-white">
+              {t("pawmart.account.myAccount")}
+            </span>
           </nav>
 
           <div className="flex items-center gap-2">
@@ -146,14 +226,14 @@ export default function AccountLayout() {
               className="flex items-center gap-1.5 rounded-xl border border-gray-200 bg-white px-3 py-1.5 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 dark:hover:bg-gray-800"
             >
               <ChevronLeft size={14} />
-              <span className="hidden sm:inline">Back</span>
+              <span className="hidden sm:inline">{t("pawmart.nav.back")}</span>
             </button>
 
             <button
               onClick={() => setDrawerOpen(true)}
               className="flex items-center gap-1.5 rounded-xl border border-gray-200 bg-white px-3 py-1.5 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 lg:hidden"
             >
-              <Menu size={16} /> Menu
+              <Menu size={16} /> {t("pawmart.nav.menu")}
             </button>
           </div>
         </div>
@@ -163,8 +243,16 @@ export default function AccountLayout() {
         <div className="mb-6 flex items-center gap-3">
           <div className="h-8 w-1 rounded-full bg-amber-500" />
           <div>
-            <h1 className="text-xl font-bold text-gray-900 dark:text-white">Hello, {user?.fullName?.split(" ")[0] ?? "there"}</h1>
-            <p className="text-sm text-gray-500 dark:text-gray-400">Manage your profile, orders and addresses</p>
+            <h1 className="text-xl font-bold text-gray-900 dark:text-white">
+              {t("pawmart.account.hello", {
+                name:
+                  user?.fullName?.split(" ")[0] ??
+                  t("pawmart.account.fallbackName"),
+              })}
+            </h1>
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              {t("pawmart.account.subtitle")}
+            </p>
           </div>
         </div>
 
@@ -199,7 +287,9 @@ export default function AccountLayout() {
               className="fixed inset-y-0 left-0 z-50 w-72 overflow-y-auto bg-white shadow-2xl dark:bg-gray-900"
             >
               <div className="flex items-center justify-between border-b border-gray-100 px-4 py-3 dark:border-gray-800">
-                <span className="font-semibold text-gray-900 dark:text-white">My Account</span>
+                <span className="font-semibold text-gray-900 dark:text-white">
+                  {t("pawmart.account.myAccount")}
+                </span>
                 <button
                   onClick={() => setDrawerOpen(false)}
                   className="rounded-lg p-1.5 text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800"
@@ -215,5 +305,3 @@ export default function AccountLayout() {
     </div>
   );
 }
-
-

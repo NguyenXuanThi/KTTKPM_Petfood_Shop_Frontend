@@ -1,10 +1,10 @@
 ﻿import { AlertTriangle, Coins, ShoppingBag, Ticket } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { RewardShopItem } from "@/api/rewardApi";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { formatCoins } from "./CoinBadge";
-import { formatDate, formatDiscount } from "@/lib/couponUtils";
-import { formatPrice } from "@/lib/utils";
+import { formatDiscount } from "@/lib/couponUtils";
 
 export function RewardShopCard({
   item,
@@ -17,6 +17,7 @@ export function RewardShopCard({
   isLoading?: boolean;
   onExchange: () => void;
 }) {
+  const { t } = useTranslation();
   const coupon = item.coupon;
   const enoughCoins = coinBalance >= item.coinCost;
   const missingCoins = Math.max(0, item.coinCost - coinBalance);
@@ -28,11 +29,10 @@ export function RewardShopCard({
       <div className="rounded-[1.75rem] border border-dashed border-red-200 bg-red-50/70 p-5 text-red-700 dark:border-red-900/60 dark:bg-red-950/20 dark:text-red-300">
         <div className="flex items-center gap-3 font-bold">
           <AlertTriangle size={20} />
-          Không thể tải thông tin coupon
+          {t("pawmart.rewardsPages.couponLoadFailed")}
         </div>
         <p className="mt-2 text-sm">
-          Reward Shop item này đang thiếu dữ liệu coupon từ backend. Vui lòng
-          báo admin kiểm tra couponId.
+          {t("pawmart.rewardsPages.couponLoadFailedDesc")}
         </p>
       </div>
     );
@@ -52,7 +52,7 @@ export function RewardShopCard({
             </div>
             <div>
               <p className="text-xs font-bold uppercase tracking-[0.18em] text-amber-500">
-                Reward coupon
+                {t("pawmart.rewardsPages.rewardCoupon")}
               </p>
               <h3 className="mt-1 font-mono text-2xl font-black tracking-tight text-gray-950 dark:text-white">
                 {coupon.code}
@@ -62,13 +62,17 @@ export function RewardShopCard({
           <Badge
             variant={item.isActive && coupon.isActive ? "success" : "default"}
           >
-            {item.isActive && coupon.isActive ? "Có thể đổi" : "Tạm khóa"}
+            {item.isActive && coupon.isActive
+              ? t("pawmart.rewardsPages.exchangeable")
+              : t("pawmart.rewardsPages.locked")}
           </Badge>
         </div>
 
         <div className="mt-5 rounded-3xl bg-gradient-to-br from-amber-50 to-orange-50 p-4 dark:from-amber-950/20 dark:to-orange-950/10">
           <div className="text-3xl font-black text-orange-600 dark:text-orange-300">
-            Giảm {formatDiscount(coupon)}
+            {t("pawmart.rewardsPages.discount", {
+              value: formatDiscount(coupon),
+            })}
           </div>
           {coupon.description && (
             <p className="mt-2 text-sm leading-6 text-gray-600 dark:text-gray-300">
@@ -77,33 +81,21 @@ export function RewardShopCard({
           )}
         </div>
 
-        {/* <div className="mt-4 grid gap-2 text-sm text-gray-600 dark:text-gray-300">
-          <div className="flex justify-between gap-3 rounded-2xl bg-gray-50 px-3 py-2 dark:bg-gray-800/70">
-            <span>Đơn tối thiểu</span>
-            <span className="font-bold text-gray-950 dark:text-white">{coupon.minOrderAmount > 0 ? formatPrice(coupon.minOrderAmount) : "Không yêu cầu"}</span>
-          </div>
-          <div className="flex justify-between gap-3 rounded-2xl bg-gray-50 px-3 py-2 dark:bg-gray-800/70">
-            <span>Giảm tối đa</span>
-            <span className="font-bold text-gray-950 dark:text-white">{coupon.maxDiscountAmount ? formatPrice(coupon.maxDiscountAmount) : "Không giới hạn"}</span>
-          </div>
-          <div className="flex justify-between gap-3 rounded-2xl bg-gray-50 px-3 py-2 dark:bg-gray-800/70">
-            <span>Hạn dùng</span>
-            <span className="font-bold text-gray-950 dark:text-white">{formatDate(coupon.expiresAt)}</span>
-          </div>
-        </div> */}
-
         <div className="mt-auto pt-5">
           <div className="mb-3 flex items-center justify-between rounded-2xl border border-amber-100 bg-amber-50 px-3 py-2 dark:border-amber-900/50 dark:bg-amber-950/20">
             <span className="inline-flex items-center gap-2 text-sm font-bold text-amber-700 dark:text-amber-300">
-              <Coins size={16} /> Cần
+              <Coins size={16} /> {t("pawmart.rewardsPages.need")}
             </span>
             <span className="text-lg font-black text-amber-700 dark:text-amber-300">
-              {formatCoins(item.coinCost)} xu
+              {formatCoins(item.coinCost)}
+              {t("pawmart.rewardsPages.coinSuffix")}
             </span>
           </div>
           {!enoughCoins && (
             <p className="mb-3 text-center text-xs font-semibold text-red-500">
-              Cần thêm {formatCoins(missingCoins)} xu
+              {t("pawmart.rewardsPages.needMore", {
+                count: formatCoins(missingCoins),
+              })}
             </p>
           )}
           <Button
@@ -114,10 +106,11 @@ export function RewardShopCard({
           >
             {enoughCoins ? (
               <>
-                <ShoppingBag size={16} /> Đổi ngay
+                <ShoppingBag size={16} />{" "}
+                {t("pawmart.rewardsPages.exchangeNow")}
               </>
             ) : (
-              "Không đủ xu"
+              t("pawmart.rewardsPages.notEnoughCoins")
             )}
           </Button>
         </div>

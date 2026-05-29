@@ -6,20 +6,19 @@ import { Button } from "@/components/ui/Button";
 import { useProducts } from "@/hooks/useProducts";
 import { useProductRecommendations } from "@/hooks/useRecommendations";
 import { RecommendationSource } from "@/types";
+import { useTranslation } from "react-i18next";
 
-const subtitles: Record<RecommendationSource, string> = {
-  best_seller: "Những sản phẩm đang được nhiều khách hàng quan tâm",
-  viewed: "Dựa trên sản phẩm bạn vừa xem",
-  searched: "Dựa trên tìm kiếm gần đây của bạn",
+const subtitleKeys: Record<RecommendationSource, string> = {
+  best_seller: "pawmart.recommendations.subtitles.bestSeller",
+  viewed: "pawmart.recommendations.subtitles.viewed",
+  searched: "pawmart.recommendations.subtitles.searched",
 };
 
 export function RecommendationSection() {
+  const { t } = useTranslation();
   const { data, isLoading, isFetching, isError, refetch } =
     useProductRecommendations();
-  const {
-    data: fallbackData,
-    isLoading: isFallbackLoading,
-  } = useProducts(
+  const { data: fallbackData, isLoading: isFallbackLoading } = useProducts(
     {
       limit: 4,
       sortBy: "createdAt",
@@ -60,18 +59,18 @@ export function RecommendationSection() {
           <div>
             <div className="mb-2 inline-flex items-center gap-2 rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-700 dark:bg-amber-900/40 dark:text-amber-300">
               <Sparkles size={14} />
-              Cá nhân hóa
+              {t("pawmart.recommendations.badge")}
             </div>
             <h2 className="text-2xl font-bold text-gray-900 dark:text-white md:text-3xl">
-              Gợi ý dành cho bạn
+              {t("pawmart.recommendations.title")}
             </h2>
             <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-              {subtitles[source]}
+              {t(subtitleKeys[source])}
             </p>
           </div>
           <Link to="/products">
             <Button variant="outline" size="sm">
-              Xem thêm <ArrowRight size={14} />
+              {t("pawmart.recommendations.viewMore")} <ArrowRight size={14} />
             </Button>
           </Link>
         </div>
@@ -79,10 +78,10 @@ export function RecommendationSection() {
         {isError && !fallbackProducts.length && !isFallbackLoading ? (
           <div className="rounded-2xl border border-dashed border-amber-200 bg-white/70 p-6 text-center dark:border-amber-900/40 dark:bg-gray-950/60">
             <p className="text-sm font-medium text-gray-700 dark:text-gray-200">
-              Chưa tải được gợi ý lúc này.
+              {t("pawmart.recommendations.loadFailed")}
             </p>
             <p className="mt-1 text-sm text-gray-500">
-              Bạn vẫn có thể xem các product nổi bật trong cửa hàng.
+              {t("pawmart.recommendations.fallback")}
             </p>
             <Button
               className="mt-4"
@@ -90,7 +89,7 @@ export function RecommendationSection() {
               size="sm"
               onClick={() => refetch()}
             >
-              Thử lại
+              {t("pawmart.recommendations.retry")}
             </Button>
           </div>
         ) : (
@@ -98,8 +97,8 @@ export function RecommendationSection() {
             products={products}
             isLoading={showLoading}
             skeletonCount={4}
-            emptyTitle="Chưa có gợi ý phù hợp"
-            emptyDescription="Hãy xem hoặc tìm kiếm product để hệ thống gợi ý tốt hơn."
+            emptyTitle={t("pawmart.recommendations.emptyTitle")}
+            emptyDescription={t("pawmart.recommendations.emptyDesc")}
           />
         )}
       </div>

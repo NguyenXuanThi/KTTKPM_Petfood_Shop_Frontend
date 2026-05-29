@@ -1,15 +1,39 @@
-﻿import { ArrowRight, Coins, Gift, ShoppingBag, Ticket, Truck } from "lucide-react";
+﻿﻿import {
+  ArrowRight,
+  Coins,
+  Gift,
+  ShoppingBag,
+  Ticket,
+  Truck,
+} from "lucide-react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
 import { useMyRewards } from "@/hooks/useRewards";
 import { Button } from "@/components/ui/Button";
+import { useTranslation } from "react-i18next";
 
 const highlights = [
-  { icon: Coins, label: "Tích xu", color: "bg-amber-100 text-amber-700" },
-  { icon: Ticket, label: "Đổi coupon", color: "bg-orange-100 text-orange-700" },
-  { icon: Gift, label: "Quay thưởng", color: "bg-rose-100 text-rose-700" },
-  { icon: Truck, label: "Cơ hội freeship", color: "bg-emerald-100 text-emerald-700" },
+  {
+    icon: Coins,
+    labelKey: "pawmart.rewards.coin",
+    color: "bg-amber-100 text-amber-700",
+  },
+  {
+    icon: Ticket,
+    labelKey: "pawmart.rewards.coupon",
+    color: "bg-orange-100 text-orange-700",
+  },
+  {
+    icon: Gift,
+    labelKey: "pawmart.rewards.spin",
+    color: "bg-rose-100 text-rose-700",
+  },
+  {
+    icon: Truck,
+    labelKey: "pawmart.rewards.freeship",
+    color: "bg-emerald-100 text-emerald-700",
+  },
 ];
 
 function MiniWheel() {
@@ -30,15 +54,16 @@ function MiniWheel() {
 }
 
 export function HomeRewardSection() {
+  const { t } = useTranslation();
   const { isAuthenticated } = useAuth();
   const { data: reward } = useMyRewards({ enabled: isAuthenticated });
   const spinBalance = reward?.spinBalance ?? 0;
 
   const primary = !isAuthenticated
-    ? { label: "Đăng nhập để tham gia", to: "/login" }
+    ? { label: t("pawmart.rewards.login"), to: "/login" }
     : spinBalance > 0
-      ? { label: "Quay ngay", to: "/rewards/wheel" }
-      : { label: "Mua hàng để nhận lượt quay", to: "/products" };
+      ? { label: t("pawmart.rewards.spinNow"), to: "/rewards/wheel" }
+      : { label: t("pawmart.rewards.shopForSpin"), to: "/products" };
 
   return (
     <section className="mx-auto max-w-7xl px-4 md:px-6">
@@ -55,19 +80,19 @@ export function HomeRewardSection() {
                 viewport={{ once: true }}
                 className="inline-flex items-center gap-2 rounded-full bg-white/80 px-4 py-2 text-sm font-bold text-orange-600 shadow-sm ring-1 ring-orange-100 dark:bg-gray-900/80 dark:ring-orange-900/40"
               >
-                <Gift size={16} /> PawMart Rewards
+                <Gift size={16} /> {t("pawmart.rewards.badge")}
               </motion.div>
 
               <h2 className="mt-5 max-w-2xl text-3xl font-black tracking-tight text-gray-950 dark:text-white md:text-4xl">
-                Mua hàng nhận lượt quay may mắn
+                {t("pawmart.rewards.title")}
               </h2>
               <p className="mt-4 max-w-2xl text-base leading-7 text-gray-600 dark:text-gray-300 md:text-lg">
-                Thanh toán đơn hàng để nhận lượt quay Lucky Wheel. Quay thưởng nhận xu và đổi coupon hấp dẫn.
+                {t("pawmart.rewards.desc")}
               </p>
 
               {isAuthenticated && spinBalance > 0 && (
                 <div className="mt-5 inline-flex rounded-full bg-orange-600 px-4 py-2 text-sm font-bold text-white shadow-lg shadow-orange-500/20">
-                  Bạn còn {spinBalance} lượt quay
+                  {t("pawmart.rewards.balance", { count: spinBalance })}
                 </div>
               )}
 
@@ -75,11 +100,18 @@ export function HomeRewardSection() {
                 {highlights.map((item) => {
                   const Icon = item.icon;
                   return (
-                    <div key={item.label} className="rounded-2xl border border-white/70 bg-white/75 p-3 shadow-sm backdrop-blur dark:border-gray-800 dark:bg-gray-900/70">
-                      <div className={`mb-2 flex h-10 w-10 items-center justify-center rounded-xl ${item.color}`}>
+                    <div
+                      key={item.labelKey}
+                      className="rounded-2xl border border-white/70 bg-white/75 p-3 shadow-sm backdrop-blur dark:border-gray-800 dark:bg-gray-900/70"
+                    >
+                      <div
+                        className={`mb-2 flex h-10 w-10 items-center justify-center rounded-xl ${item.color}`}
+                      >
                         <Icon size={18} />
                       </div>
-                      <p className="text-sm font-bold text-gray-800 dark:text-gray-100">{item.label}</p>
+                      <p className="text-sm font-bold text-gray-800 dark:text-gray-100">
+                        {t(item.labelKey)}
+                      </p>
                     </div>
                   );
                 })}
@@ -92,8 +124,12 @@ export function HomeRewardSection() {
                   </Button>
                 </Link>
                 <Link to="/rewards/shop">
-                  <Button size="lg" variant="outline" className="w-full border-orange-200 bg-white/80 text-orange-700 hover:bg-orange-50 sm:w-auto">
-                    Xem cửa hàng đổi thưởng <ShoppingBag size={16} />
+                  <Button
+                    size="lg"
+                    variant="outline"
+                    className="w-full border-orange-200 bg-white/80 text-orange-700 hover:bg-orange-50 sm:w-auto"
+                  >
+                    {t("pawmart.rewards.shop")} <ShoppingBag size={16} />
                   </Button>
                 </Link>
               </div>
@@ -107,8 +143,12 @@ export function HomeRewardSection() {
                 transition={{ duration: 3.5, repeat: Infinity }}
                 className="absolute bottom-1 left-2 rounded-2xl bg-white px-4 py-3 shadow-xl ring-1 ring-orange-100 dark:bg-gray-900 dark:ring-gray-800"
               >
-                <p className="text-xs font-semibold text-gray-500">Reward hôm nay</p>
-                <p className="text-sm font-black text-orange-600">Xu, coupon, freeship</p>
+                <p className="text-xs font-semibold text-gray-500">
+                  {t("pawmart.rewards.today")}
+                </p>
+                <p className="text-sm font-black text-orange-600">
+                  {t("pawmart.rewards.todayPrizes")}
+                </p>
               </motion.div>
             </div>
           </div>

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import dayjs from "dayjs";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -7,11 +7,15 @@ import {
   BellRing,
   ChevronRight,
   CreditCard,
+  Download,
   Package,
+  Printer,
+  ShoppingCart,
   Truck,
   XCircle,
 } from "lucide-react";
 import { orderService } from "@/services/order.service";
+import { cartService } from "@/services/cart.service";
 import { Order } from "@/types";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Skeleton } from "@/components/ui/Skeleton";
@@ -20,6 +24,12 @@ import { formatPrice } from "@/lib/utils";
 import { Modal } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/Button";
 import { CART_KEY } from "@/hooks/useCartApi";
+import { useTranslation } from "react-i18next";
+import {
+  downloadOrderInvoice,
+  InvoiceLabels,
+  printOrderInvoice,
+} from "@/lib/orderInvoice";
 
 const fmt = (v: string) =>
   new Intl.DateTimeFormat("vi-VN", {
@@ -73,7 +83,7 @@ function getCountdown(target: string | null | undefined, now: dayjs.Dayjs) {
 
 export default function OrdersPage({
   onlyShipping = false,
-  title = "My Orders",
+  title,
   icon = <Package size={18} />,
   emptyIcon = <Package size={30} />,
 }: {
@@ -82,6 +92,13 @@ export default function OrdersPage({
   icon?: React.ReactNode;
   emptyIcon?: React.ReactNode;
 }) {
+  const { t, i18n } = useTranslation();
+  const navigate = useNavigate();
+  const pageTitle =
+    title ??
+    (onlyShipping
+      ? t("pawmart.account.shippingOrders")
+      : t("pawmart.account.myOrders"));
   const [arrivalDialogOpen, setArrivalDialogOpen] = useState(false);
   const [arrivalOrderId, setArrivalOrderId] = useState<string | null>(null);
   const [dismissedArrivalOrderIds, setDismissedArrivalOrderIds] = useState<
@@ -89,6 +106,33 @@ export default function OrdersPage({
   >(() => loadDismissedArrivalOrderIds());
   const [now, setNow] = useState(() => dayjs());
   const queryClient = useQueryClient();
+  const locale =
+    i18n.language?.startsWith("jp") || i18n.language?.startsWith("ja")
+      ? "ja-JP"
+      : i18n.language?.startsWith("en")
+        ? "en-US"
+        : "vi-VN";
+  const invoiceLabels: InvoiceLabels = {
+    invoiceTitle: t("pawmart.account.invoiceTitle"),
+    invoiceNo: t("pawmart.account.invoiceNo"),
+    createdAt: t("pawmart.account.created"),
+    customer: t("pawmart.account.customer"),
+    phone: t("pawmart.account.phone"),
+    address: t("pawmart.account.address"),
+    paymentMethod: t("pawmart.account.method"),
+    paymentStatus: t("pawmart.account.status"),
+    product: t("pawmart.account.product"),
+    quantity: t("pawmart.checkout.qty"),
+    unitPrice: t("pawmart.account.unitPrice"),
+    lineTotal: t("pawmart.account.lineTotal"),
+    subtotal: t("pawmart.checkout.subtotal"),
+    shippingFee: t("pawmart.checkout.shipping"),
+    shippingDiscount: t("pawmart.checkout.shippingDiscount"),
+    couponDiscount: t("pawmart.checkout.couponDiscount"),
+    vatIncluded: t("pawmart.account.vatIncluded"),
+    total: t("pawmart.account.total"),
+    note: t("pawmart.account.invoiceVatNote"),
+  };
 
   useEffect(() => {
     const id = window.setInterval(() => setNow(dayjs()), 60_000);
@@ -122,7 +166,7 @@ export default function OrdersPage({
         "Customer cancelled unpaid banking order",
       ),
     onSuccess: () => {
-      toast.success("Banking order cancelled");
+      toast.success(t("pawmart.account.bankingCancelled"));
       queryClient.invalidateQueries({
         queryKey: [onlyShipping ? "orders-shipping" : "orders-all"],
       });
@@ -130,7 +174,25 @@ export default function OrdersPage({
     },
     onError: (error: any) => {
       toast.error(
-        error?.response?.data?.message ?? "Failed to cancel banking order",
+        error?.response?.data?.message ??
+          t("pawmart.account.cancelBankingFailed"),
+      );
+    },
+  });
+  const reorderMutation = useMutation({
+    mutationFn: async (order: Order) => {
+      for (const item of order.items) {
+        await cartService.addItem(item.productId, item.quantity);
+      }
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: [CART_KEY] });
+      toast.success(t("pawmart.account.reorderSuccess"));
+      navigate("/cart");
+    },
+    onError: (error: any) => {
+      toast.error(
+        error?.response?.data?.message ?? t("pawmart.account.reorderFailed"),
       );
     },
   });
@@ -180,8 +242,8 @@ export default function OrdersPage({
   if (isError) {
     return (
       <EmptyState
-        title="Cannot load orders"
-        description="Please try again later"
+        title={t("pawmart.account.cannotLoadOrders")}
+        description={t("pawmart.account.tryAgainLater")}
       />
     );
   }
@@ -190,11 +252,15 @@ export default function OrdersPage({
     return (
       <EmptyState
         icon={emptyIcon}
-        title={onlyShipping ? "No shipping orders" : "No orders yet"}
+        title={
+          onlyShipping
+            ? t("pawmart.account.noShippingOrders")
+            : t("pawmart.account.noOrdersYet")
+        }
         description={
           onlyShipping
-            ? "Orders in shipping state will appear here"
-            : "Start shopping to create your first order"
+            ? t("pawmart.account.shippingOrdersDesc")
+            : t("pawmart.account.noOrdersDesc")
         }
       />
     );
@@ -205,7 +271,7 @@ export default function OrdersPage({
       <div className="space-y-4">
         <div className="flex items-center gap-2 text-gray-900 dark:text-white">
           {icon}
-          <h2 className="text-lg font-bold">{title}</h2>
+          <h2 className="text-lg font-bold">{pageTitle}</h2>
         </div>
 
         {!onlyShipping && pendingBankingOrders.length > 0 && (
@@ -217,16 +283,19 @@ export default function OrdersPage({
                 </div>
                 <div>
                   <p className="font-semibold text-blue-900 dark:text-blue-100">
-                    You have a banking order waiting for payment confirmation.
+                    {t("pawmart.account.bankingWaitingTitle")}
                   </p>
                   <p className="text-sm text-blue-700 dark:text-blue-300">
-                    Upload your transfer proof when you are ready, or cancel the
-                    unpaid order.
+                    {t("pawmart.account.bankingWaitingDesc")}
                   </p>
                   {pendingBankingOrders[0].expiresAt && (
                     <p className="mt-1 text-xs font-semibold text-blue-800 dark:text-blue-200">
-                      Expires in{" "}
-                      {getCountdown(pendingBankingOrders[0].expiresAt, now)}
+                      {t("pawmart.account.expiresIn", {
+                        time: getCountdown(
+                          pendingBankingOrders[0].expiresAt,
+                          now,
+                        ),
+                      })}
                     </p>
                   )}
                 </div>
@@ -235,7 +304,7 @@ export default function OrdersPage({
                 to={`/payment/upload-proof/${pendingBankingOrders[0]._id}`}
                 className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-700"
               >
-                Continue Upload Proof
+                {t("pawmart.account.continueUploadProof")}
               </Link>
             </div>
           </div>
@@ -249,7 +318,9 @@ export default function OrdersPage({
             >
               <div className="mb-3 flex flex-wrap items-start justify-between gap-2">
                 <div>
-                  <p className="text-xs text-gray-400">Order ID</p>
+                  <p className="text-xs text-gray-400">
+                    {t("pawmart.account.orderId")}
+                  </p>
                   <p className="font-mono text-sm font-semibold text-gray-900 dark:text-white">
                     #{order._id.slice(-8).toUpperCase()}
                   </p>
@@ -287,7 +358,9 @@ export default function OrdersPage({
                 ))}
                 {order.items.length > 2 && (
                   <p className="text-xs text-gray-400">
-                    +{order.items.length - 2} more items
+                    {t("pawmart.account.moreItems", {
+                      count: order.items.length - 2,
+                    })}
                   </p>
                 )}
               </div>
@@ -295,31 +368,36 @@ export default function OrdersPage({
               <div className="mt-4 flex flex-wrap items-center justify-between gap-2 border-t border-gray-100 pt-3 dark:border-gray-800">
                 <div className="text-sm text-gray-600 dark:text-gray-300">
                   {/* <span className="font-medium">Payment:</span> {order.paymentMethod === "cash" ? "Cash on Delivery" : "Banking Transfer"} */}
-                  <span className="font-medium">Payment:</span>{" "}
+                  <span className="font-medium">
+                    {t("pawmart.account.payment")}:
+                  </span>{" "}
                   {order.paymentMethod === "cash"
-                    ? "Cash on Delivery"
+                    ? t("pawmart.payment.cash")
                     : order.paymentMethod === "vnpay"
-                      ? "VNPay"
-                      : "Banking Transfer"}
+                      ? t("pawmart.payment.vnpay")
+                      : t("pawmart.payment.banking")}
                   {order.orderStatus === "shipping" &&
                     order.estimatedDeliveryAt && (
                       <span className="ml-3 inline-flex items-center gap-1 rounded-full bg-blue-100 px-2 py-0.5 text-xs font-semibold text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
-                        <Truck size={12} /> ETA{" "}
-                        {getCountdown(order.estimatedDeliveryAt, now)}
+                        <Truck size={12} />{" "}
+                        {t("pawmart.account.eta", {
+                          time: getCountdown(order.estimatedDeliveryAt, now),
+                        })}
                       </span>
                     )}
                   {order.paymentMethod === "banking" &&
                     order.paymentStatus === "pending" &&
                     order.expiresAt && (
                       <span className="ml-3 inline-flex items-center gap-1 rounded-full bg-orange-100 px-2 py-0.5 text-xs font-semibold text-orange-700 dark:bg-orange-900/30 dark:text-orange-300">
-                        Waiting for payment proof, expires in{" "}
-                        {getCountdown(order.expiresAt, now)}
+                        {t("pawmart.account.waitingProof", {
+                          time: getCountdown(order.expiresAt, now),
+                        })}
                       </span>
                     )}
                   {order.paymentMethod === "banking" &&
                     order.paymentStatus === "expired" && (
                       <span className="ml-3 inline-flex items-center gap-1 rounded-full bg-gray-100 px-2 py-0.5 text-xs font-semibold text-gray-700 dark:bg-gray-800 dark:text-gray-300">
-                        Payment expired. Items were restored to your cart.
+                        {t("pawmart.account.paymentExpiredRestored")}
                       </span>
                     )}
                 </div>
@@ -332,7 +410,7 @@ export default function OrdersPage({
                           to={`/payment/upload-proof/${order._id}`}
                           className="inline-flex items-center gap-1 rounded-lg bg-blue-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-blue-700"
                         >
-                          Upload Proof
+                          {t("pawmart.account.uploadProof")}
                         </Link>
                         <button
                           onClick={() =>
@@ -341,18 +419,47 @@ export default function OrdersPage({
                           disabled={cancelBankingMutation.isPending}
                           className="inline-flex items-center gap-1 rounded-lg border border-red-200 px-3 py-1.5 text-sm font-medium text-red-600 hover:bg-red-50 disabled:opacity-60 dark:border-red-900/50 dark:hover:bg-red-900/20"
                         >
-                          <XCircle size={14} /> Cancel
+                          <XCircle size={14} /> {t("pawmart.account.cancel")}
                         </button>
                       </>
                     )}
                   <p className="font-bold text-amber-600">
                     {formatPrice(order.totalAmount)}
                   </p>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      printOrderInvoice(order, invoiceLabels, locale)
+                    }
+                    className="inline-flex items-center gap-1 rounded-lg border border-gray-200 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800"
+                  >
+                    <Printer size={14} />{" "}
+                    {t("pawmart.account.printInvoiceShort")}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      downloadOrderInvoice(order, invoiceLabels, locale)
+                    }
+                    className="inline-flex items-center gap-1 rounded-lg border border-gray-200 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800"
+                  >
+                    <Download size={14} />{" "}
+                    {t("pawmart.account.exportInvoiceShort")}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => reorderMutation.mutate(order)}
+                    disabled={reorderMutation.isPending}
+                    className="inline-flex items-center gap-1 rounded-lg border border-amber-200 px-3 py-1.5 text-sm font-medium text-amber-700 hover:bg-amber-50 disabled:opacity-60 dark:border-amber-900/50 dark:text-amber-300 dark:hover:bg-amber-900/20"
+                  >
+                    <ShoppingCart size={14} />{" "}
+                    {t("pawmart.account.reorderShort")}
+                  </button>
                   <Link
                     to={`/my-account/orders/${order._id}`}
                     className="inline-flex items-center gap-1 rounded-lg border border-gray-200 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800"
                   >
-                    View <ChevronRight size={14} />
+                    {t("pawmart.account.view")} <ChevronRight size={14} />
                   </Link>
                 </div>
               </div>
@@ -364,7 +471,7 @@ export default function OrdersPage({
       <Modal
         isOpen={arrivalDialogOpen}
         onClose={closeArrivalDialog}
-        title="Your order has arrived"
+        title={t("pawmart.account.arrivedTitle")}
         size="md"
       >
         <div className="space-y-3 text-center">
@@ -372,11 +479,12 @@ export default function OrdersPage({
             <BellRing />
           </div>
           <p className="text-sm text-gray-600 dark:text-gray-300">
-            Delivery ETA has reached zero. Please check your package and enjoy
-            your pet products.
+            {t("pawmart.account.arrivedDesc")}
           </p>
           <div className="flex justify-center">
-            <Button onClick={closeArrivalDialog}>Great</Button>
+            <Button onClick={closeArrivalDialog}>
+              {t("pawmart.account.great")}
+            </Button>
           </div>
         </div>
       </Modal>

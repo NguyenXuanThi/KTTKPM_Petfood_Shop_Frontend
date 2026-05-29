@@ -5,6 +5,7 @@ import { Skeleton } from "@/components/ui/Skeleton";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Badge } from "@/components/ui/Badge";
 import { UserCoupon } from "@/types/coupon";
+import { useTranslation } from "react-i18next";
 
 function CouponCardSkeleton() {
   return (
@@ -25,6 +26,7 @@ function CouponCardSkeleton() {
 }
 
 export default function CouponsPage() {
+  const { t } = useTranslation();
   const { data: userCoupons = [], isLoading, isError } = useMyCoupons();
 
   const active = userCoupons.filter((uc) => uc.status === "active");
@@ -44,10 +46,10 @@ export default function CouponsPage() {
         </div>
         <div>
           <h2 className="text-xl font-bold text-gray-900 dark:text-white">
-            My Coupons
+            {t("pawmart.coupons.title")}
           </h2>
           <p className="text-sm text-gray-500 dark:text-gray-400">
-            Your available discount coupons
+            {t("pawmart.coupons.subtitle")}
           </p>
         </div>
       </div>
@@ -55,8 +57,12 @@ export default function CouponsPage() {
       {/* Stats */}
       {!isLoading && !isError && (
         <div className="flex flex-wrap gap-2">
-          <Badge variant="success">Active: {active.length}</Badge>
-          <Badge variant="default">Used / Expired: {inactive.length}</Badge>
+          <Badge variant="success">
+            {t("pawmart.coupons.active", { count: active.length })}
+          </Badge>
+          <Badge variant="default">
+            {t("pawmart.coupons.usedExpired", { count: inactive.length })}
+          </Badge>
         </div>
       )}
 
@@ -70,8 +76,8 @@ export default function CouponsPage() {
       ) : isError ? (
         <EmptyState
           icon={<Ticket size={28} />}
-          title="Unable to load coupons"
-          description="Please try again later."
+          title={t("pawmart.coupons.unableLoad")}
+          description={t("pawmart.coupons.tryAgain")}
         />
       ) : userCoupons.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-gray-200 bg-white p-12 text-center dark:border-gray-700 dark:bg-gray-900">
@@ -80,10 +86,10 @@ export default function CouponsPage() {
             className="mx-auto mb-3 text-gray-300 dark:text-gray-600"
           />
           <p className="font-semibold text-gray-500 dark:text-gray-400">
-            No coupons available
+            {t("pawmart.coupons.emptyTitle")}
           </p>
           <p className="mt-1 text-sm text-gray-400 dark:text-gray-500">
-            Coupons assigned to you will appear here.
+            {t("pawmart.coupons.emptyDesc")}
           </p>
         </div>
       ) : (
@@ -92,7 +98,7 @@ export default function CouponsPage() {
           {active.length > 0 && (
             <section>
               <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
-                Available
+                {t("pawmart.coupons.available")}
               </h3>
               <div className="space-y-3">
                 {active.map((uc) => (
@@ -111,7 +117,7 @@ export default function CouponsPage() {
           {inactive.length > 0 && (
             <section>
               <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
-                Used & Expired
+                {t("pawmart.coupons.usedExpiredSection")}
               </h3>
               <div className="space-y-3">
                 {inactive.map((uc) => (

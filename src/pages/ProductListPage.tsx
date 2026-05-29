@@ -119,7 +119,7 @@ export default function ProductListPage() {
         <div>
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white md:text-3xl">
             {searchFromUrl
-              ? `Kết quả tìm kiếm "${searchFromUrl}"`
+              ? t("pawmart.search.resultsFor", { keyword: searchFromUrl })
               : t("pawmart.products.title")}
           </h1>
           {!isLoading && (
@@ -138,7 +138,7 @@ export default function ProductListPage() {
               />
               <input
                 type="text"
-                placeholder="Tìm đồ chơi thú cưng..."
+                placeholder={t("pawmart.search.productPlaceholder")}
                 value={searchInput}
                 onChange={(event) => setSearchInput(event.target.value)}
                 className="w-full rounded-xl border border-gray-200 bg-white py-2.5 pl-10 pr-20 text-sm text-gray-900 placeholder-gray-400 transition-all focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-100 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100"
@@ -147,7 +147,7 @@ export default function ProductListPage() {
                 <button
                   type="button"
                   onClick={clearSearch}
-                  aria-label="Xóa từ khóa"
+                  aria-label={t("pawmart.common.clearKeyword")}
                   className="absolute right-12 top-1/2 -translate-y-1/2 rounded-full p-1 text-gray-400 transition hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-gray-800"
                 >
                   <X size={14} />
@@ -155,10 +155,10 @@ export default function ProductListPage() {
               )}
               <button
                 type="submit"
-                aria-label="Tìm kiếm"
+                aria-label={t("pawmart.common.search")}
                 className="absolute right-1.5 top-1/2 -translate-y-1/2 rounded-lg bg-amber-500 px-2.5 py-1.5 text-xs font-semibold text-white transition hover:bg-amber-600"
               >
-                Tìm
+                {t("pawmart.common.search")}
               </button>
             </form>
           </div>
@@ -207,18 +207,18 @@ export default function ProductListPage() {
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                   <p className="text-sm font-semibold text-amber-600">
-                    Khám phá hôm nay
+                    {t("pawmart.products.discoverToday")}
                   </p>
                   <h2 className="text-xl font-bold text-gray-900 dark:text-white">
-                    Product mới và được quan tâm
+                    {t("pawmart.products.newAndPopular")}
                   </h2>
                   <p className="mt-1 text-sm text-gray-500">
-                    Nhập từ khóa rồi nhấn Enter để tìm kiếm chính xác hơn.
+                    {t("pawmart.products.searchHint")}
                   </p>
                 </div>
                 <Link to="/products">
                   <Button variant="outline" size="sm">
-                    Xem tất cả <ArrowRight size={14} />
+                    {t("pawmart.products.viewAll")} <ArrowRight size={14} />
                   </Button>
                 </Link>
               </div>

@@ -1,5 +1,6 @@
-﻿import { useEffect, useMemo, useState } from "react";
+﻿﻿import { useEffect, useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { useQueryClient } from "@tanstack/react-query";
 import {
   Gift,
@@ -102,6 +103,7 @@ function debugWheelSync({
 }
 
 export default function LuckyWheelPage() {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [searchParams] = useSearchParams();
   const [soundEnabled, setSoundEnabled] = useState(() => {
@@ -180,7 +182,7 @@ export default function LuckyWheelPage() {
         : Promise.resolve(),
     ]);
 
-    toast.success("Đã mở khóa phần thưởng!");
+    toast.success(t("pawmart.rewardsPages.unlockSuccess"));
     setPendingReward(null);
   };
 
@@ -214,7 +216,7 @@ export default function LuckyWheelPage() {
         rewards[targetIndex]?._id !== spinResult.rewardPoolId
       ) {
         stopSpinSound({ fade: false });
-        toast.error("Không thể đồng bộ phần thưởng vòng quay");
+        toast.error(t("pawmart.rewardsPages.syncFailed"));
         return;
       }
 
@@ -261,17 +263,16 @@ export default function LuckyWheelPage() {
             <Gift size={13} /> Lucky Wheel
           </Badge>
           <h1 className="mt-3 text-3xl font-black text-gray-950 dark:text-white md:text-4xl">
-            Quay thưởng nhận xu và coupon
+            {t("pawmart.rewardsPages.spinTitle")}
           </h1>
           <p className="mt-2 max-w-2xl text-gray-500 dark:text-gray-400">
-            Backend quyết định phần thưởng. Vòng quay sẽ dừng đúng vào phần
-            thưởng đã nhận.
+            {t("pawmart.rewardsPages.spinDesc")}
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
           <CoinBadge coins={reward?.coinBalance ?? 0} />
           <Badge variant="info" className="px-3 py-1.5">
-            🎡 {spinBalance} lượt quay còn lại
+            🎡 {t("pawmart.rewardsPages.spinsLeft", { count: spinBalance })}
           </Badge>
           <Button
             type="button"
@@ -280,15 +281,21 @@ export default function LuckyWheelPage() {
             className="rounded-full px-3"
             onClick={toggleSound}
             title={
-              soundEnabled ? "Tắt âm thanh vòng quay" : "Bật âm thanh vòng quay"
+              soundEnabled
+                ? t("pawmart.rewardsPages.turnSoundOff")
+                : t("pawmart.rewardsPages.turnSoundOn")
             }
             aria-label={
-              soundEnabled ? "Tắt âm thanh vòng quay" : "Bật âm thanh vòng quay"
+              soundEnabled
+                ? t("pawmart.rewardsPages.turnSoundOff")
+                : t("pawmart.rewardsPages.turnSoundOn")
             }
           >
             {soundEnabled ? <Volume2 size={16} /> : <VolumeX size={16} />}
             <span className="hidden sm:inline">
-              {soundEnabled ? "Âm thanh bật" : "Đã tắt âm"}
+              {soundEnabled
+                ? t("pawmart.rewardsPages.soundOn")
+                : t("pawmart.rewardsPages.soundOff")}
             </span>
           </Button>
         </div>
@@ -301,9 +308,13 @@ export default function LuckyWheelPage() {
             {isError ? (
               <EmptyState
                 icon={<RotateCcw size={28} />}
-                title="Không thể tải reward pool"
-                description="Vui lòng kiểm tra reward-service rồi thử lại."
-                action={<Button onClick={() => refetch()}>Thử lại</Button>}
+                title={t("pawmart.rewardsPages.loadRewardsFailed")}
+                description={t("pawmart.rewardsPages.serviceBusy")}
+                action={
+                  <Button onClick={() => refetch()}>
+                    {t("pawmart.rewardsPages.retry")}
+                  </Button>
+                }
               />
             ) : isLoading ? (
               <div className="mx-auto h-[340px] max-w-[340px] animate-pulse rounded-full bg-gray-100 dark:bg-gray-800 sm:h-[430px] sm:max-w-[430px]" />
@@ -329,8 +340,8 @@ export default function LuckyWheelPage() {
                 {hasDebugRewardIndex
                   ? `Test index ${debugRewardIndex}`
                   : spinBalance > 0
-                    ? "Quay ngay"
-                    : "Không còn lượt quay"}
+                    ? t("pawmart.rewardsPages.spinNow")
+                    : t("pawmart.rewardsPages.noSpins")}
               </Button>
             </div>
             {isAnimating}
@@ -342,7 +353,7 @@ export default function LuckyWheelPage() {
             <div className="flex items-center gap-2">
               <Sparkles size={18} className="text-amber-500" />
               <h3 className="font-black text-gray-950 dark:text-white">
-                Phần thưởng đang có
+                {t("pawmart.rewardsPages.availableRewards")}
               </h3>
             </div>
             <div className="mt-4 space-y-2">
@@ -355,7 +366,9 @@ export default function LuckyWheelPage() {
                     {item.label}
                   </span>
                   <Badge variant={item.type === "coin" ? "warning" : "info"}>
-                    {item.type === "coin" ? "Xu" : "Coupon"}
+                    {item.type === "coin"
+                      ? t("pawmart.rewardsPages.coin")
+                      : t("pawmart.rewardsPages.coupon")}
                   </Badge>
                 </div>
               ))}

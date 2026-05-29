@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/Badge";
 import { Rating } from "@/components/ui/Rating";
 import { Button } from "@/components/ui/Button";
 import { WishlistButton } from "./WishlistButton";
+import { useTranslation } from "react-i18next";
 
 interface ProductCardProps {
   product: Product;
@@ -15,6 +16,7 @@ interface ProductCardProps {
 }
 
 export function ProductCard({ product, index = 0 }: ProductCardProps) {
+  const { t } = useTranslation();
   const { addItem, isInCart } = useCart();
   const inCart = isInCart(product._id);
 
@@ -36,17 +38,22 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
       {/* Stock badge */}
       {product.stock === 0 && (
         <div className="absolute left-3 top-3 z-10">
-          <Badge variant="danger">Out of stock</Badge>
+          <Badge variant="danger">{t("pawmart.products.outOfStock")}</Badge>
         </div>
       )}
       {product.stock > 0 && product.stock <= 5 && (
         <div className="absolute left-3 top-3 z-10">
-          <Badge variant="warning">Only {product.stock} left</Badge>
+          <Badge variant="warning">
+            {t("pawmart.products.onlyLeft", { count: product.stock })}
+          </Badge>
         </div>
       )}
 
       {/* Image */}
-      <Link to={`/products/${product._id}`} className="block overflow-hidden rounded-t-2xl">
+      <Link
+        to={`/products/${product._id}`}
+        className="block overflow-hidden rounded-t-2xl"
+      >
         <img
           src={getImageUrl(product.imageUrl)}
           alt={product.name}
@@ -88,7 +95,9 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
           className="w-full"
         >
           <ShoppingCart size={14} />
-          {inCart ? "In Cart" : "Add to Cart"}
+          {inCart
+            ? t("pawmart.products.inCart")
+            : t("pawmart.products.addToCart")}
         </Button>
       </div>
     </motion.div>

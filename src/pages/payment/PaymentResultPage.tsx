@@ -40,7 +40,8 @@ export default function PaymentResultPage() {
                 #{orderId.slice(-8).toUpperCase()}
               </span>
             )}{" "}
-            has been paid and is being processed. We'll deliver your pet food soon! 🐾
+            has been paid and is being processed. We'll deliver your pet food
+            soon! 🐾
           </p>
         </>
       ) : isFailed ? (
@@ -49,7 +50,8 @@ export default function PaymentResultPage() {
             Payment Failed
           </h1>
           <p className="mt-3 text-gray-500 dark:text-gray-400">
-            Your payment was not completed. Your order is saved — you can try again from your orders page.
+            Your payment was not completed. Your order is saved — you can try
+            again from your orders page.
           </p>
         </>
       ) : (

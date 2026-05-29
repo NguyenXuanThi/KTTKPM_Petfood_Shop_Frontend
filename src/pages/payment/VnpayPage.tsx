@@ -5,6 +5,7 @@ import {
   useLocation,
   Link,
 } from "react-router-dom";
+import { Trans, useTranslation } from "react-i18next";
 import { useQueryClient } from "@tanstack/react-query";
 import { CART_KEY } from "@/hooks/useCartApi";
 import { cartService } from "@/services/cart.service";
@@ -21,6 +22,7 @@ import {
 import { Button } from "@/components/ui/Button";
 
 export default function VnpayPage() {
+  const { t } = useTranslation();
   const [searchParams] = useSearchParams();
   const location = useLocation();
   const navigate = useNavigate();
@@ -110,9 +112,9 @@ export default function VnpayPage() {
   if (!paymentUrl && paymentStatus === "idle") {
     return (
       <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4">
-        <p className="text-gray-500">Phiên thanh toán không hợp lệ.</p>
+        <p className="text-gray-500">{t("pawmart.vnpay.invalidSession")}</p>
         <Link to="/cart" className="text-sm text-amber-500 underline">
-          Quay lại giỏ hàng
+          {t("pawmart.vnpay.backToCart")}
         </Link>
       </div>
     );
@@ -125,7 +127,7 @@ export default function VnpayPage() {
           to="/my-account/orders"
           className="mb-6 inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-amber-500 dark:text-gray-400"
         >
-          <ArrowLeft size={14} /> Xem đơn hàng của tôi
+          <ArrowLeft size={14} /> {t("pawmart.vnpay.viewMyOrders")}
         </Link>
 
         <div className="overflow-hidden rounded-3xl border border-gray-100 bg-white shadow-xl dark:border-gray-800 dark:bg-gray-900">
@@ -145,11 +147,13 @@ export default function VnpayPage() {
                 )}
               </div>
               <div>
-                <h1 className="text-lg font-bold">Thanh toán VNPay</h1>
+                <h1 className="text-lg font-bold">
+                  {t("pawmart.vnpay.title")}
+                </h1>
                 <p className="text-xs text-white/80">
                   {paymentStatus === "success"
-                    ? "Giao dịch hoàn tất"
-                    : "Cổng thanh toán an toàn"}
+                    ? t("pawmart.vnpay.successSubtitle")
+                    : t("pawmart.vnpay.secureSubtitle")}
                 </p>
               </div>
             </div>
@@ -162,12 +166,12 @@ export default function VnpayPage() {
                   <CheckCircle size={40} className="text-emerald-500" />
                 </div>
                 <h2 className="text-xl font-bold text-gray-900 dark:text-white">
-                  Thanh toán thành công!
+                  {t("pawmart.vnpay.successTitle")}
                 </h2>
                 {completedOrderId && (
                   <div className="mt-2 rounded-xl bg-gray-50 px-6 py-3 dark:bg-gray-800">
                     <p className="text-xs text-gray-500 dark:text-gray-400">
-                      Mã đơn hàng của bạn
+                      {t("pawmart.vnpay.yourOrderId")}
                     </p>
                     <p className="font-mono text-lg font-bold text-amber-500">
                       #{completedOrderId.slice(-8).toUpperCase()}
@@ -175,7 +179,7 @@ export default function VnpayPage() {
                   </div>
                 )}
                 <p className="text-sm text-gray-500 dark:text-gray-400">
-                  Cảm ơn bạn đã mua sắm. Đơn hàng của bạn đang được xử lý.
+                  {t("pawmart.vnpay.successDesc")}
                 </p>
                 <Button
                   className="mt-4 w-full"
@@ -183,7 +187,7 @@ export default function VnpayPage() {
                     navigate(`/my-account/orders/${completedOrderId}`)
                   }
                 >
-                  Xem chi tiết đơn hàng
+                  {t("pawmart.vnpay.viewOrderDetail")}
                 </Button>
               </div>
             ) : paymentStatus === "failed" ? (
@@ -192,12 +196,12 @@ export default function VnpayPage() {
                   <XCircle size={40} className="text-red-500" />
                 </div>
                 <h2 className="text-xl font-bold text-gray-900 dark:text-white">
-                  Thanh toán thất bại
+                  {t("pawmart.vnpay.failedTitle")}
                 </h2>
                 {completedOrderId && (
                   <div className="mt-2 rounded-xl bg-gray-50 px-6 py-3 dark:bg-gray-800">
                     <p className="text-xs text-gray-500 dark:text-gray-400">
-                      Mã đơn hàng
+                      {t("pawmart.vnpay.orderId")}
                     </p>
                     <p className="font-mono text-lg font-bold text-gray-900 dark:text-white">
                       #{completedOrderId.slice(-8).toUpperCase()}
@@ -205,8 +209,7 @@ export default function VnpayPage() {
                   </div>
                 )}
                 <p className="text-sm text-gray-500 dark:text-gray-400">
-                  Thanh toán chưa hoàn tất. Bạn có thể thử lại từ trang chi tiết
-                  đơn hàng.
+                  {t("pawmart.vnpay.failedDesc")}
                 </p>
                 <Button
                   className="mt-4 w-full"
@@ -215,7 +218,7 @@ export default function VnpayPage() {
                     navigate(`/my-account/orders/${completedOrderId}`)
                   }
                 >
-                  Xem lại đơn hàng
+                  {t("pawmart.vnpay.reviewOrder")}
                 </Button>
               </div>
             ) : (
@@ -223,7 +226,7 @@ export default function VnpayPage() {
                 {initialOrderId && (
                   <div className="mb-5 rounded-xl bg-gray-50 px-4 py-3 text-left dark:bg-gray-800">
                     <p className="text-xs text-gray-500 dark:text-gray-400">
-                      Mã đơn hàng
+                      {t("pawmart.vnpay.orderId")}
                     </p>
                     <p className="font-mono text-sm font-semibold text-gray-900 dark:text-white">
                       #{initialOrderId.slice(-8).toUpperCase()}
@@ -237,11 +240,15 @@ export default function VnpayPage() {
                       1
                     </div>
                     <p className="text-sm text-gray-600 dark:text-gray-300">
-                      Nhấn{" "}
-                      <span className="font-semibold text-red-500">
-                        Mở cổng thanh toán
-                      </span>{" "}
-                      (mở tab mới)
+                      <Trans
+                        i18nKey="pawmart.vnpay.stepOpenGateway"
+                        values={{ action: t("pawmart.vnpay.openGateway") }}
+                        components={{
+                          action: (
+                            <span className="font-semibold text-red-500" />
+                          ),
+                        }}
+                      />
                     </p>
                   </div>
                   <div className="flex items-start gap-3">
@@ -249,7 +256,7 @@ export default function VnpayPage() {
                       2
                     </div>
                     <p className="text-sm text-gray-600 dark:text-gray-300">
-                      Hoàn tất thanh toán trên VNPay
+                      {t("pawmart.vnpay.stepComplete")}
                     </p>
                   </div>
                   <div className="flex items-start gap-3">
@@ -257,7 +264,7 @@ export default function VnpayPage() {
                       3
                     </div>
                     <p className="text-sm text-gray-600 dark:text-gray-300">
-                      Quay lại trang này để xem kết quả
+                      {t("pawmart.vnpay.stepReturn")}
                     </p>
                   </div>
                 </div>
@@ -269,18 +276,18 @@ export default function VnpayPage() {
                   className="flex w-full items-center justify-center gap-2 rounded-2xl bg-red-500 px-6 py-4 text-base font-bold text-white shadow-lg shadow-red-500/30 transition hover:bg-red-600"
                 >
                   <ExternalLink size={20} />
-                  Mở cổng thanh toán
+                  {t("pawmart.vnpay.openGateway")}
                 </a>
 
                 <div className="mt-6 flex items-center justify-center gap-4 text-xs text-gray-400">
                   <span className="flex items-center gap-1">
-                    <Lock size={11} /> Bảo mật SSL
+                    <Lock size={11} /> {t("pawmart.vnpay.ssl")}
                   </span>
                   <span className="flex items-center gap-1">
-                    <ShieldCheck size={11} /> An toàn
+                    <ShieldCheck size={11} /> {t("pawmart.vnpay.safe")}
                   </span>
                   <span className="flex items-center gap-1">
-                    <Clock size={11} /> Xử lý tức thì
+                    <Clock size={11} /> {t("pawmart.vnpay.instant")}
                   </span>
                 </div>
               </>
@@ -290,7 +297,7 @@ export default function VnpayPage() {
           {paymentStatus === "idle" && (
             <div className="border-t border-gray-100 bg-gray-50 px-6 py-3 dark:border-gray-800 dark:bg-gray-800/50">
               <p className="text-center text-xs text-gray-400 dark:text-gray-500">
-                Đừng đóng trang này cho đến khi hoàn tất thanh toán ở tab mới
+                {t("pawmart.vnpay.doNotClose")}
               </p>
             </div>
           )}
